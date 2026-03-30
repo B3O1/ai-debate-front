@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'router/app_router.dart';
 
 class App extends StatelessWidget {
@@ -7,10 +8,15 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'AI 토론',
+      title: 'AI TALK',
       debugShowCheckedModeBanner: false,
       onGenerateRoute: AppRouter.onGenerateRoute,
-      initialRoute: '/',
+      initialRoute: AppRouter.home,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2f6BFF)),
+        scaffoldBackgroundColor: const Color(0xFFFFFFFF),
+        useMaterial3: true,
+      ),
     );
   }
 }
