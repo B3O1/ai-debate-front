@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../app/router/app_router.dart';
 import '../../../core/di/injection.dart';
+import '../../domain/entities/debate_session_config.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
@@ -228,22 +230,34 @@ class _HomeViewState extends State<_HomeView> {
                                             onPressed: () {
                                               if (!state.isStartEnabled) return;
 
-                                              final payload = {
-                                                'topicId':
+                                              final selectedTopic = state.topics
+                                                  .firstWhere(
+                                                    (topic) =>
+                                                        topic.id ==
+                                                        state.selectedTopicId,
+                                                  );
+
+                                              final config = DebateSessionConfig(
+                                                topic:
+                                                    state.isCustomTopicSelected
+                                                    ? state.customTopicText
+                                                          .trim()
+                                                    : selectedTopic.title,
+                                                topicId:
                                                     state.isCustomTopicSelected
                                                     ? null
-                                                    : state.selectedTopicId,
-                                                'customTopic':
+                                                    : selectedTopic.id,
+                                                customTopic:
                                                     state.isCustomTopicSelected
                                                     ? state.customTopicText
                                                           .trim()
                                                     : null,
-                                                'debateStyle':
-                                                    state.selectedStyle?.name,
-                                              };
+                                                style: state.selectedStyle!,
+                                              );
 
-                                              debugPrint(
-                                                'START PAYLOAD: $payload',
+                                              Navigator.of(context).pushNamed(
+                                                AppRouter.chat,
+                                                arguments: config,
                                               );
                                             },
                                           ),

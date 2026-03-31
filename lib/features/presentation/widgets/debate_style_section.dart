@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../bloc/home_event.dart';
+import '../../domain/entities/debate_style.dart';
 
 class DebateStyleSection extends StatelessWidget {
   final DebateStyle? selectedStyle;
@@ -25,11 +25,7 @@ class DebateStyleSection extends StatelessWidget {
       children: [
         const Row(
           children: [
-            Icon(
-              Icons.psychology_outlined,
-              size: 20,
-              color: Color(0xFF344054),
-            ),
+            Icon(Icons.psychology_outlined, size: 20, color: Color(0xFF344054)),
             SizedBox(width: 8),
             Text(
               'AI 반박 스타일 선택',
@@ -225,8 +221,8 @@ class _SegmentedStyleLabel extends StatelessWidget {
               color: isSelected
                   ? const Color(0xFF245DFF)
                   : isHovered
-                      ? const Color(0xFF4B5E82)
-                      : const Color(0xFF66758E),
+                  ? const Color(0xFF4B5E82)
+                  : const Color(0xFF66758E),
             ),
             child: Text(label),
           ),

@@ -1,5 +1,5 @@
+import '../../domain/entities/debate_style.dart';
 import '../../domain/entities/home_item.dart';
-import 'home_event.dart';
 
 class HomeState {
   final bool isLoading;
