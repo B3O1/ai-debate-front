@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../domain/entities/debate_style.dart';
 import '../../domain/usecases/get_home_items.dart';
 import 'home_event.dart';
 import 'home_state.dart';
@@ -37,12 +36,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   void _onTopicSelected(TopicSelected event, Emitter<HomeState> emit) {
     if (state.selectedTopicId == event.topicId) {
-      emit(
-        state.copyWith(
-          clearSelectedTopic: true,
-          customTopicText: '',
-        ),
-      );
+      emit(state.copyWith(clearSelectedTopic: true, customTopicText: ''));
       return;
     }
 

@@ -39,16 +39,19 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       ),
     );
 
+    final welcomeMessage = _buildWelcomeMessage(event.config);
+
     try {
-      await resetDebate();
+      await resetDebate(config: event.config);
       emit(
         state.copyWith(
-          messages: [_buildWelcomeMessage(event.config)],
+          messages: [welcomeMessage],
         ),
       );
     } catch (_) {
       emit(
         state.copyWith(
+          messages: [welcomeMessage],
           errorMessage: '대화 세션 초기화에 실패했습니다. 계속 진행은 가능하지만 API 상태를 확인해주세요.',
         ),
       );
@@ -159,6 +162,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     DebateResetRequested event,
     Emitter<ChatState> emit,
   ) async {
+    final config = state.config;
+
     emit(
       state.copyWith(
         isResetting: true,
@@ -169,8 +174,12 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
 
     try {
-      await resetDebate();
-      final config = state.config;
+      if (config == null) {
+        emit(state.copyWith(isResetting: false));
+        return;
+      }
+
+      await resetDebate(config: config);
       emit(
         state.copyWith(
           isResetting: false,
@@ -181,6 +190,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       emit(
         state.copyWith(
           isResetting: false,
+          messages: config == null ? state.messages : [_buildWelcomeMessage(config)],
           errorMessage: '세션 초기화에 실패했습니다.',
         ),
       );
