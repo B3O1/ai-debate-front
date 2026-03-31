@@ -13,7 +13,9 @@ abstract class DebateRemoteDataSource {
 
   Future<DebateEvaluationModel> evaluateDebate();
 
-  Future<void> resetDebate();
+  Future<void> resetDebate({
+    required DebateSessionConfig config,
+  });
 }
 
 class DebateRemoteDataSourceImpl implements DebateRemoteDataSource {
@@ -58,7 +60,20 @@ class DebateRemoteDataSourceImpl implements DebateRemoteDataSource {
   }
 
   @override
-  Future<void> resetDebate() async {
-    await dio.post('reset');
+  Future<void> resetDebate({
+    required DebateSessionConfig config,
+  }) async {
+    await dio.post(
+      'reset',
+      data: {
+        'user_id': 'guest',
+        'session_id': 'default',
+        'topic': config.topic,
+        'model_type': 'groq',
+        'personality': config.style.personalityValue,
+        'attitude': config.style.attitudeValue,
+        'atmosphere': config.style.atmosphereValue,
+      },
+    );
   }
 }

@@ -49,6 +49,14 @@ class _ChatViewState extends State<_ChatView> {
   }
 
   void _submitCurrentMessage(BuildContext context) {
+    final currentValue = _inputController.value;
+    final isComposing =
+        currentValue.composing.isValid && !currentValue.composing.isCollapsed;
+
+    if (isComposing) {
+      return;
+    }
+
     final raw = _inputController.text;
 
     if (raw.trim().isEmpty) {
@@ -236,6 +244,21 @@ class _ChatViewState extends State<_ChatView> {
                                                       !HardwareKeyboard
                                                           .instance
                                                           .isShiftPressed) {
+                                                    final currentValue =
+                                                        _inputController.value;
+                                                    final isComposing =
+                                                        currentValue
+                                                            .composing
+                                                            .isValid &&
+                                                        !currentValue
+                                                            .composing
+                                                            .isCollapsed;
+
+                                                    if (isComposing) {
+                                                      return KeyEventResult
+                                                          .ignored;
+                                                    }
+
                                                     _submitCurrentMessage(
                                                       context,
                                                     );
