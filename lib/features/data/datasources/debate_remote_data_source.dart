@@ -26,17 +26,25 @@ class DebateRemoteDataSourceImpl implements DebateRemoteDataSource {
     required DebateSessionConfig config,
     required String message,
   }) async {
+    final topicBackground = config.isCustomTopic
+        ? '사용자가 직접 입력한 논제입니다.'
+        : '선택된 논제를 기준으로 토론합니다.';
+
     final response = await dio.post(
       'chat',
       data: {
+        'user_id': 'guest',
+        'session_id': 'default',
         'topic': config.topic,
-        'topicId': config.topicId,
-        'customTopic': config.customTopic,
-        'style': config.style.apiValue,
-        'mode': config.style.apiValue,
         'message': message,
-        'userMessage': message,
-        'user_input': message,
+        'model_type': 'groq',
+        'personality': config.style.personalityValue,
+        'attitude': config.style.attitudeValue,
+        'atmosphere': config.style.atmosphereValue,
+        'background': topicBackground,
+        'goal': '사용자의 주장에 논리적으로 반박하고 토론을 이어간다.',
+        'condition':
+            '항상 한국어로 답변하고, 사용자의 주장에 직접 반박하되 선택된 스타일 톤을 유지한다.',
       },
     );
 
