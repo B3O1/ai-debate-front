@@ -1,3 +1,5 @@
+import '../../domain/entities/debate_style.dart';
+
 abstract class HomeEvent {
   const HomeEvent();
 }
@@ -21,8 +23,6 @@ class TopicHovered extends HomeEvent {
 class TopicHoverExited extends HomeEvent {
   const TopicHoverExited();
 }
-
-enum DebateStyle { aggressive, logical, kind }
 
 class DebateStyleToggled extends HomeEvent {
   final DebateStyle style;
