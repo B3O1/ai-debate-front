@@ -37,4 +37,37 @@ extension DebateStyleX on DebateStyle {
         return 'KIND MODE';
     }
   }
+
+  String get personalityValue {
+    switch (this) {
+      case DebateStyle.aggressive:
+        return 'cynical';
+      case DebateStyle.logical:
+        return 'analytical';
+      case DebateStyle.kind:
+        return 'empathetic';
+    }
+  }
+
+  String get attitudeValue {
+    switch (this) {
+      case DebateStyle.aggressive:
+        return 'egoist';
+      case DebateStyle.logical:
+        return 'calm';
+      case DebateStyle.kind:
+        return 'respectful';
+    }
+  }
+
+  String get atmosphereValue {
+    switch (this) {
+      case DebateStyle.aggressive:
+        return 'adversarial';
+      case DebateStyle.logical:
+        return 'structured';
+      case DebateStyle.kind:
+        return 'supportive';
+    }
+  }
 }
