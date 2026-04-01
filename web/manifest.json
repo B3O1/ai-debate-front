@@ -1,11 +1,11 @@
 {
-    "name": "b3o1",
-    "short_name": "b3o1",
+    "name": "AI TALK",
+    "short_name": "AI TALK",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "AI debate web app.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
