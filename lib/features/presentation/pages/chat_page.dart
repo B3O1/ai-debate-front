@@ -241,27 +241,47 @@ class _ChatViewState extends State<_ChatView> {
                                                       event.logicalKey ==
                                                           LogicalKeyboardKey
                                                               .enter &&
-                                                      !HardwareKeyboard
+                                                      HardwareKeyboard
                                                           .instance
                                                           .isShiftPressed) {
-                                                    final currentValue =
+                                                    final value =
                                                         _inputController.value;
-                                                    final isComposing =
-                                                        currentValue
-                                                            .composing
-                                                            .isValid &&
-                                                        !currentValue
-                                                            .composing
-                                                            .isCollapsed;
+                                                    final selection =
+                                                        value.selection;
 
-                                                    if (isComposing) {
-                                                      return KeyEventResult
-                                                          .ignored;
-                                                    }
+                                                    final start =
+                                                        selection.isValid
+                                                        ? selection.start
+                                                        : value.text.length;
+                                                    final end = selection.isValid
+                                                        ? selection.end
+                                                        : value.text.length;
 
-                                                    _submitCurrentMessage(
-                                                      context,
-                                                    );
+                                                    final newText = value.text
+                                                        .replaceRange(
+                                                          start,
+                                                          end,
+                                                          '\n',
+                                                        );
+
+                                                    _inputController.value =
+                                                        TextEditingValue(
+                                                          text: newText,
+                                                          selection:
+                                                              TextSelection.collapsed(
+                                                                offset:
+                                                                    start + 1,
+                                                              ),
+                                                        );
+
+                                                    context
+                                                        .read<ChatBloc>()
+                                                        .add(
+                                                          ChatInputChanged(
+                                                            newText,
+                                                          ),
+                                                        );
+
                                                     return KeyEventResult
                                                         .handled;
                                                   }
@@ -275,7 +295,12 @@ class _ChatViewState extends State<_ChatView> {
                                                   keyboardType:
                                                       TextInputType.multiline,
                                                   textInputAction:
-                                                      TextInputAction.newline,
+                                                      TextInputAction.send,
+                                                  onSubmitted: (_) {
+                                                    _submitCurrentMessage(
+                                                      context,
+                                                    );
+                                                  },
                                                   onChanged: (value) {
                                                     context
                                                         .read<ChatBloc>()
