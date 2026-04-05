@@ -7,11 +7,9 @@ import '../../domain/entities/debate_session_config.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
-import '../widgets/custom_topic_card.dart';
-import '../widgets/debate_style_section.dart';
 import '../widgets/home_header_section.dart';
-import '../widgets/start_debate_button.dart';
-import '../widgets/topic_card.dart';
+import '../widgets/home/home_action_panel.dart';
+import '../widgets/home/home_topic_grid.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -126,145 +124,80 @@ class _HomeViewState extends State<_HomeView> {
                                     ),
                                   )
                                 else
-                                  Wrap(
-                                    spacing: 20,
-                                    runSpacing: 20,
-                                    children: state.topics.map((topic) {
-                                      if (topic.isCustomInput) {
-                                        return CustomTopicCard(
-                                          isSelected:
-                                              state.selectedTopicId == topic.id,
-                                          isHovered:
-                                              state.hoveredTopicId == topic.id,
-                                          controller: _customTopicController,
-                                          onTap: () {
-                                            context.read<HomeBloc>().add(
-                                              TopicSelected(topic.id),
-                                            );
-                                          },
-                                          onHoverEnter: () {
-                                            context.read<HomeBloc>().add(
-                                              TopicHovered(topic.id),
-                                            );
-                                          },
-                                          onHoverExit: () {
-                                            context.read<HomeBloc>().add(
-                                              const TopicHoverExited(),
-                                            );
-                                          },
-                                          onChanged: (value) {
-                                            context.read<HomeBloc>().add(
-                                              CustomTopicChanged(value),
-                                            );
-                                          },
-                                        );
-                                      }
-
-                                      return TopicCard(
-                                        topic: topic,
-                                        isSelected:
-                                            state.selectedTopicId == topic.id,
-                                        isHovered:
-                                            state.hoveredTopicId == topic.id,
-                                        onTap: () {
-                                          context.read<HomeBloc>().add(
-                                            TopicSelected(topic.id),
-                                          );
-                                        },
-                                        onHoverEnter: () {
-                                          context.read<HomeBloc>().add(
-                                            TopicHovered(topic.id),
-                                          );
-                                        },
-                                        onHoverExit: () {
-                                          context.read<HomeBloc>().add(
-                                            const TopicHoverExited(),
-                                          );
-                                        },
+                                  HomeTopicGrid(
+                                    topics: state.topics,
+                                    selectedTopicId: state.selectedTopicId,
+                                    hoveredTopicId: state.hoveredTopicId,
+                                    customTopicController:
+                                        _customTopicController,
+                                    onTopicTap: (topicId) {
+                                      context.read<HomeBloc>().add(
+                                        TopicSelected(topicId),
                                       );
-                                    }).toList(),
+                                    },
+                                    onTopicHoverEnter: (topicId) {
+                                      context.read<HomeBloc>().add(
+                                        TopicHovered(topicId),
+                                      );
+                                    },
+                                    onTopicHoverExit: () {
+                                      context.read<HomeBloc>().add(
+                                        const TopicHoverExited(),
+                                      );
+                                    },
+                                    onCustomTopicChanged: (value) {
+                                      context.read<HomeBloc>().add(
+                                        CustomTopicChanged(value),
+                                      );
+                                    },
                                   ),
                                 const SizedBox(height: 40),
-                                Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.all(24),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFF7FAFE),
-                                    borderRadius: BorderRadius.circular(24),
-                                    border: Border.all(
-                                      color: const Color(0xFFE4EBF5),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Expanded(
-                                        flex: 3,
-                                        child: DebateStyleSection(
-                                          selectedStyle: state.selectedStyle,
-                                          hoveredStyle: state.hoveredStyle,
-                                          onStyleTapped: (style) {
-                                            context.read<HomeBloc>().add(
-                                              DebateStyleToggled(style),
-                                            );
-                                          },
-                                          onStyleHoverEnter: (style) {
-                                            context.read<HomeBloc>().add(
-                                              DebateStyleHovered(style),
-                                            );
-                                          },
-                                          onStyleHoverExit: () {
-                                            context.read<HomeBloc>().add(
-                                              const DebateStyleHoverExited(),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                      const SizedBox(width: 24),
-                                      Expanded(
-                                        child: Align(
-                                          alignment: Alignment.centerRight,
-                                          child: StartDebateButton(
-                                            enabled: state.isStartEnabled,
-                                            onPressed: () {
-                                              if (!state.isStartEnabled) return;
+                                HomeActionPanel(
+                                  selectedStyle: state.selectedStyle,
+                                  hoveredStyle: state.hoveredStyle,
+                                  onStyleTapped: (style) {
+                                    context.read<HomeBloc>().add(
+                                      DebateStyleToggled(style),
+                                    );
+                                  },
+                                  onStyleHoverEnter: (style) {
+                                    context.read<HomeBloc>().add(
+                                      DebateStyleHovered(style),
+                                    );
+                                  },
+                                  onStyleHoverExit: () {
+                                    context.read<HomeBloc>().add(
+                                      const DebateStyleHoverExited(),
+                                    );
+                                  },
+                                  isStartEnabled: state.isStartEnabled,
+                                  onStartPressed: () {
+                                    if (!state.isStartEnabled) return;
 
-                                              final selectedTopic = state.topics
-                                                  .firstWhere(
-                                                    (topic) =>
-                                                        topic.id ==
-                                                        state.selectedTopicId,
-                                                  );
+                                    final selectedTopic = state.topics
+                                        .firstWhere(
+                                          (topic) =>
+                                              topic.id == state.selectedTopicId,
+                                        );
 
-                                              final config = DebateSessionConfig(
-                                                topic:
-                                                    state.isCustomTopicSelected
-                                                    ? state.customTopicText
-                                                          .trim()
-                                                    : selectedTopic.title,
-                                                topicId:
-                                                    state.isCustomTopicSelected
-                                                    ? null
-                                                    : selectedTopic.id,
-                                                customTopic:
-                                                    state.isCustomTopicSelected
-                                                    ? state.customTopicText
-                                                          .trim()
-                                                    : null,
-                                                style: state.selectedStyle!,
-                                              );
+                                    final config = DebateSessionConfig(
+                                      topic: state.isCustomTopicSelected
+                                          ? state.customTopicText.trim()
+                                          : selectedTopic.title,
+                                      topicId: state.isCustomTopicSelected
+                                          ? null
+                                          : selectedTopic.id,
+                                      customTopic: state.isCustomTopicSelected
+                                          ? state.customTopicText.trim()
+                                          : null,
+                                      style: state.selectedStyle!,
+                                    );
 
-                                              Navigator.of(context).pushNamed(
-                                                AppRouter.chat,
-                                                arguments: config,
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                    Navigator.of(context).pushNamed(
+                                      AppRouter.chat,
+                                      arguments: config,
+                                    );
+                                  },
                                 ),
                               ],
                             ),
