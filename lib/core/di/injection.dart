@@ -13,6 +13,7 @@ import '../../features/domain/usecases/get_home_items.dart';
 import '../../features/domain/usecases/reset_debate.dart';
 import '../../features/domain/usecases/send_chat_message.dart';
 import '../../features/presentation/bloc/chat_bloc.dart';
+import '../../features/presentation/bloc/evaluation_bloc.dart';
 import '../../features/presentation/bloc/home_bloc.dart';
 
 final GetIt sl = GetIt.instance;
@@ -59,6 +60,12 @@ Future<void> configureDependencies() async {
       sendChatMessage: sl<SendChatMessage>(),
       evaluateDebate: sl<EvaluateDebate>(),
       resetDebate: sl<ResetDebate>(),
+    ),
+  );
+
+  sl.registerFactory<EvaluationBloc>(
+    () => EvaluationBloc(
+      evaluateDebate: sl<EvaluateDebate>(),
     ),
   );
 }

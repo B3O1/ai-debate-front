@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../app/router/app_router.dart';
 import '../../../core/di/injection.dart';
 import '../../domain/entities/debate_style.dart';
 import '../../domain/entities/debate_session_config.dart';
@@ -449,7 +450,10 @@ class _ChatHeader extends StatelessWidget {
               ),
             ),
             onPressed: () {
-              context.read<ChatBloc>().add(const DebateEvaluationRequested());
+              Navigator.of(context).pushNamed(
+                AppRouter.evaluation,
+                arguments: config,
+              );
             },
             child: const Text(
               '토론 종료 및 종합 분석',
@@ -483,7 +487,7 @@ class _AiTypingBubble extends StatelessWidget {
             Text(
               'AI가 입력 중입니다...',
               style: TextStyle(
-                color: const Color(0xFF7B879D).withOpacity(0.95),
+                color: const Color(0xFF7B879D).withValues(alpha: 0.95),
                 fontWeight: FontWeight.w600,
               ),
             ),
