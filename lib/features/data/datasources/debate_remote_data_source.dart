@@ -11,7 +11,9 @@ abstract class DebateRemoteDataSource {
     required String message,
   });
 
-  Future<DebateEvaluationModel> evaluateDebate();
+  Future<DebateEvaluationModel> evaluateDebate({
+    required DebateSessionConfig config,
+  });
 
   Future<void> resetDebate({
     required DebateSessionConfig config,
@@ -54,9 +56,31 @@ class DebateRemoteDataSourceImpl implements DebateRemoteDataSource {
   }
 
   @override
-  Future<DebateEvaluationModel> evaluateDebate() async {
-    final response = await dio.post('evaluate');
-    return DebateEvaluationModel.fromApi(response.data);
+  Future<DebateEvaluationModel> evaluateDebate({
+    required DebateSessionConfig config,
+  }) async {
+    final response = await dio.post(
+      'evaluate',
+      options: Options(
+        receiveTimeout: const Duration(seconds: 90),
+        sendTimeout: const Duration(seconds: 60),
+      ),
+      data: {
+        'user_id': 'guest',
+        'session_id': 'default',
+        'topic': config.topic,
+        'model_type': 'groq',
+        'personality': config.style.personalityValue,
+        'attitude': config.style.attitudeValue,
+        'atmosphere': config.style.atmosphereValue,
+        'background': config.isCustomTopic
+            ? '사용자가 직접 입력한 논제를 기준으로 토론을 진행했습니다.'
+            : '선택한 토론 논제를 기준으로 토론을 진행했습니다.',
+        'goal': '토론 내용을 종합 평가하고 강점과 보완점을 분석한다.',
+        'condition': '항상 한국어로 평가하고 score, logic_score, persuasion_score, strengths, weaknesses, feedback, raw_chat 형태로 응답한다.',
+      },
+    );
+    return DebateEvaluationModel.fromApi(response.data as Map<String, dynamic>);
   }
 
   @override
