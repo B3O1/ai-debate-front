@@ -23,17 +23,13 @@ class DebateRepositoryImpl implements DebateRepository {
   }
 
   @override
-  Future<DebateEvaluation> evaluateDebate({
-    required DebateSessionConfig config,
-  }) async {
-    final response = await remoteDataSource.evaluateDebate(config: config);
+  Future<DebateEvaluation> evaluateDebate() async {
+    final response = await remoteDataSource.evaluateDebate();
     return response.toEntity();
   }
 
   @override
-  Future<void> resetDebate({
-    required DebateSessionConfig config,
-  }) {
-    return remoteDataSource.resetDebate(config: config);
+  Future<void> resetDebate() {
+    return remoteDataSource.resetDebate();
   }
 }
