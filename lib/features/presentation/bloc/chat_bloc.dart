@@ -42,7 +42,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     final welcomeMessage = _buildWelcomeMessage(event.config);
 
     try {
-      await resetDebate(config: event.config);
+      await resetDebate();
       emit(
         state.copyWith(
           messages: [welcomeMessage],
@@ -145,7 +145,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
 
     try {
-      final result = await evaluateDebate(config: config);
+      final result = await evaluateDebate();
       emit(
         state.copyWith(
           isEvaluating: false,
@@ -192,7 +192,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
       final safeConfig = config;
 
-      await resetDebate(config: safeConfig);
+      await resetDebate();
       emit(
         state.copyWith(
           isResetting: false,

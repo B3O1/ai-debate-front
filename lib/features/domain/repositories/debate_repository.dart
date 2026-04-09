@@ -8,11 +8,7 @@ abstract class DebateRepository {
     required String message,
   });
 
-  Future<DebateEvaluation> evaluateDebate({
-    required DebateSessionConfig config,
-  });
+  Future<DebateEvaluation> evaluateDebate();
 
-  Future<void> resetDebate({
-    required DebateSessionConfig config,
-  });
+  Future<void> resetDebate();
 }
