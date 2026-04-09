@@ -22,7 +22,7 @@ class EvaluationBloc extends Bloc<EvaluationEvent, EvaluationState> {
     emit(const EvaluationLoading());
 
     try {
-      final result = await evaluateDebate(config: event.config);
+      final result = await evaluateDebate();
       if (!result.hasRequiredPresentationData) {
         emit(
           const EvaluationError(
