@@ -15,13 +15,12 @@ abstract class DebateRemoteDataSource {
     required DebateSessionConfig config,
   });
 
-  Future<void> resetDebate({
-    required DebateSessionConfig config,
-  });
+  Future<void> resetDebate({required DebateSessionConfig config});
 }
 
 class DebateRemoteDataSourceImpl implements DebateRemoteDataSource {
   final Dio dio;
+  static const String _defaultSessionId = 'default';
 
   const DebateRemoteDataSourceImpl(this.dio);
 
@@ -38,7 +37,7 @@ class DebateRemoteDataSourceImpl implements DebateRemoteDataSource {
       'chat',
       data: {
         'user_id': 'guest',
-        'session_id': 'default',
+        'session_id': _defaultSessionId,
         'topic': config.topic,
         'message': message,
         'model_type': 'groq',
@@ -47,8 +46,7 @@ class DebateRemoteDataSourceImpl implements DebateRemoteDataSource {
         'atmosphere': config.style.atmosphereValue,
         'background': topicBackground,
         'goal': '사용자의 주장에 논리적으로 반박하고 토론을 이어간다.',
-        'condition':
-            '항상 한국어로 답변하고, 사용자의 주장에 직접 반박하되 선택된 스타일 톤을 유지한다.',
+        'condition': '항상 한국어로 답변하고, 사용자의 주장에 직접 반박하되 선택된 스타일 톤을 유지한다.',
       },
     );
 
@@ -65,39 +63,13 @@ class DebateRemoteDataSourceImpl implements DebateRemoteDataSource {
         receiveTimeout: const Duration(seconds: 90),
         sendTimeout: const Duration(seconds: 60),
       ),
-      data: {
-        'user_id': 'guest',
-        'session_id': 'default',
-        'topic': config.topic,
-        'model_type': 'groq',
-        'personality': config.style.personalityValue,
-        'attitude': config.style.attitudeValue,
-        'atmosphere': config.style.atmosphereValue,
-        'background': config.isCustomTopic
-            ? '사용자가 직접 입력한 논제를 기준으로 토론을 진행했습니다.'
-            : '선택한 토론 논제를 기준으로 토론을 진행했습니다.',
-        'goal': '토론 내용을 종합 평가하고 강점과 보완점을 분석한다.',
-        'condition': '항상 한국어로 평가하고 score, logic_score, persuasion_score, strengths, weaknesses, feedback, raw_chat 형태로 응답한다.',
-      },
+      data: {'session_id': _defaultSessionId},
     );
     return DebateEvaluationModel.fromApi(response.data as Map<String, dynamic>);
   }
 
   @override
-  Future<void> resetDebate({
-    required DebateSessionConfig config,
-  }) async {
-    await dio.post(
-      'reset',
-      data: {
-        'user_id': 'guest',
-        'session_id': 'default',
-        'topic': config.topic,
-        'model_type': 'groq',
-        'personality': config.style.personalityValue,
-        'attitude': config.style.attitudeValue,
-        'atmosphere': config.style.atmosphereValue,
-      },
-    );
+  Future<void> resetDebate({required DebateSessionConfig config}) async {
+    await dio.post('reset', data: {'session_id': _defaultSessionId});
   }
 }
