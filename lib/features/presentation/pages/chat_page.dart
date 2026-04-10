@@ -37,6 +37,39 @@ class _ChatViewState extends State<_ChatView> {
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final FocusNode _inputFocusNode = FocusNode();
+  bool _pendingSubmitAfterComposition = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _inputController.addListener(_handleInputControllerChanged);
+  }
+
+  void _handleInputControllerChanged() {
+    if (!_pendingSubmitAfterComposition) {
+      return;
+    }
+
+    final currentValue = _inputController.value;
+    final isComposing =
+        currentValue.composing.isValid && !currentValue.composing.isCollapsed;
+
+    if (isComposing) {
+      return;
+    }
+
+    _pendingSubmitAfterComposition = false;
+
+    if (!mounted) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _submitCurrentMessage(context);
+      }
+    });
+  }
 
   bool _isNearBottom() {
     if (!_scrollController.hasClients) {
@@ -55,6 +88,7 @@ class _ChatViewState extends State<_ChatView> {
         currentValue.composing.isValid && !currentValue.composing.isCollapsed;
 
     if (isComposing) {
+      _pendingSubmitAfterComposition = true;
       return;
     }
 
@@ -76,6 +110,7 @@ class _ChatViewState extends State<_ChatView> {
 
   @override
   void dispose() {
+    _inputController.removeListener(_handleInputControllerChanged);
     _inputController.dispose();
     _scrollController.dispose();
     _inputFocusNode.dispose();
