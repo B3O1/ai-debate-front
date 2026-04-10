@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 class ChatInputPanel extends StatelessWidget {
   final TextEditingController controller;
+  final FocusNode focusNode;
   final bool canSend;
   final bool isResetting;
   final ValueChanged<String> onChanged;
@@ -12,6 +13,7 @@ class ChatInputPanel extends StatelessWidget {
   const ChatInputPanel({
     super.key,
     required this.controller,
+    required this.focusNode,
     required this.canSend,
     required this.isResetting,
     required this.onChanged,
@@ -57,6 +59,8 @@ class ChatInputPanel extends StatelessWidget {
                     },
                     child: TextField(
                       controller: controller,
+                      focusNode: focusNode,
+                      autofocus: true,
                       maxLines: 4,
                       minLines: 1,
                       keyboardType: TextInputType.multiline,

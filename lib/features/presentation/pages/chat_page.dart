@@ -36,6 +36,7 @@ class _ChatView extends StatefulWidget {
 class _ChatViewState extends State<_ChatView> {
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final FocusNode _inputFocusNode = FocusNode();
 
   bool _isNearBottom() {
     if (!_scrollController.hasClients) {
@@ -66,12 +67,18 @@ class _ChatViewState extends State<_ChatView> {
     _inputController.clear();
     context.read<ChatBloc>().add(const ChatInputChanged(''));
     context.read<ChatBloc>().add(ChatSubmitted(raw));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _inputFocusNode.requestFocus();
+      }
+    });
   }
 
   @override
   void dispose() {
     _inputController.dispose();
     _scrollController.dispose();
+    _inputFocusNode.dispose();
     super.dispose();
   }
 
@@ -196,6 +203,7 @@ class _ChatViewState extends State<_ChatView> {
                                 ),
                                 ChatInputPanel(
                                   controller: _inputController,
+                                  focusNode: _inputFocusNode,
                                   canSend: state.canSend,
                                   isResetting: state.isResetting,
                                   onChanged: (value) {
@@ -210,6 +218,11 @@ class _ChatViewState extends State<_ChatView> {
                                     context.read<ChatBloc>().add(
                                       const DebateResetRequested(),
                                     );
+                                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                                      if (mounted) {
+                                        _inputFocusNode.requestFocus();
+                                      }
+                                    });
                                   },
                                 ),
                               ],
