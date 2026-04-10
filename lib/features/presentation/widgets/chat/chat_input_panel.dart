@@ -43,43 +43,24 @@ class ChatInputPanel extends StatelessWidget {
                   ),
                   child: Focus(
                     onKeyEvent: (_, event) {
-                      if (event is KeyDownEvent &&
-                          event.logicalKey == LogicalKeyboardKey.enter &&
-                          HardwareKeyboard.instance.isShiftPressed) {
-                        final value = controller.value;
-                        final selection = value.selection;
-
-                        final start = selection.isValid
-                            ? selection.start
-                            : value.text.length;
-                        final end = selection.isValid
-                            ? selection.end
-                            : value.text.length;
-
-                        final newText = value.text.replaceRange(
-                          start,
-                          end,
-                          '\n',
-                        );
-
-                        controller.value = TextEditingValue(
-                          text: newText,
-                          selection: TextSelection.collapsed(offset: start + 1),
-                        );
-
-                        onChanged(newText);
-                        return KeyEventResult.handled;
+                      if (event is! KeyDownEvent ||
+                          event.logicalKey != LogicalKeyboardKey.enter) {
+                        return KeyEventResult.ignored;
                       }
 
-                      return KeyEventResult.ignored;
+                      if (HardwareKeyboard.instance.isShiftPressed) {
+                        return KeyEventResult.ignored;
+                      }
+
+                      onSubmit();
+                      return KeyEventResult.handled;
                     },
                     child: TextField(
                       controller: controller,
                       maxLines: 4,
                       minLines: 1,
                       keyboardType: TextInputType.multiline,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) => onSubmit(),
+                      textInputAction: TextInputAction.newline,
                       onChanged: onChanged,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
