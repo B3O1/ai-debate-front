@@ -1,82 +1,77 @@
 import '../../domain/entities/debate_evaluation.dart';
 
 class DebateEvaluationModel {
-  final String summary;
+  final int? score;
+  final int? logicScore;
+  final int? persuasionScore;
+  final List<String> strengths;
+  final List<String> weaknesses;
+  final String feedback;
+  final String rawChat;
 
   const DebateEvaluationModel({
-    required this.summary,
+    required this.score,
+    required this.logicScore,
+    required this.persuasionScore,
+    required this.strengths,
+    required this.weaknesses,
+    required this.feedback,
+    required this.rawChat,
   });
 
-  factory DebateEvaluationModel.fromApi(dynamic data) {
+  factory DebateEvaluationModel.fromApi(Map<String, dynamic> data) {
     return DebateEvaluationModel(
-      summary: _extractSummary(data),
+      score: _asInt(data['score']),
+      logicScore: _asInt(data['logic_score']),
+      persuasionScore: _asInt(data['persuasion_score']),
+      strengths: _asStringList(data['strengths']),
+      weaknesses: _asStringList(data['weaknesses']),
+      feedback: _asString(data['feedback']),
+      rawChat: _asString(data['raw_chat']),
     );
   }
 
-  static String _extractSummary(dynamic data) {
-    if (data is String) {
-      return data;
+  static int? _asInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) {
+      return int.tryParse(value);
     }
+    return null;
+  }
 
-    if (data is Map<String, dynamic>) {
-      final evaluation = data['evaluation'];
-      if (evaluation is Map<String, dynamic>) {
-        final logicScore = evaluation['logic_score'];
-        final persuasionScore = evaluation['persuasion_score'];
-        final feedback = evaluation['feedback'];
-        final isEmotional = evaluation['is_emotional'];
-
-        final buffer = StringBuffer();
-
-        if (logicScore != null) {
-          buffer.writeln('논리 점수: $logicScore');
-        }
-        if (persuasionScore != null) {
-          buffer.writeln('설득 점수: $persuasionScore');
-        }
-        if (isEmotional != null) {
-          buffer.writeln('감정적 표현 여부: ${isEmotional == true ? '예' : '아니오'}');
-        }
-        if (feedback is String && feedback.trim().isNotEmpty) {
-          if (buffer.isNotEmpty) {
-            buffer.writeln();
-          }
-          buffer.write('피드백: $feedback');
-        }
-
-        final summary = buffer.toString().trim();
-        if (summary.isNotEmpty) {
-          return summary;
-        }
-      }
-
-      const candidateKeys = [
-        'summary',
-        'evaluation',
-        'analysis',
-        'message',
-        'result',
-        'content',
-        'text',
-      ];
-
-      for (final key in candidateKeys) {
-        final value = data[key];
-        if (value is String && value.trim().isNotEmpty) {
-          return value;
-        }
-      }
-
-      final nested = data['data'];
-      if (nested != null) {
-        return _extractSummary(nested);
-      }
+  static String _asString(dynamic value) {
+    if (value is String) {
+      final trimmed = value.trim();
+      if (trimmed.isEmpty) return '';
+      if (trimmed.toLowerCase() == 'string') return '';
+      return trimmed;
     }
+    return '';
+  }
 
-    return '평가 결과를 해석하지 못했습니다. API 응답 필드를 확인해주세요.';
+  static List<String> _asStringList(dynamic value) {
+    if (value is List) {
+      return value
+          .whereType<String>()
+          .map((item) => item.trim())
+          .where((item) => item.toLowerCase() != 'string')
+          .where((item) => item.isNotEmpty)
+          .toList();
+    }
+    return const [];
   }
 
   DebateEvaluation toEntity() {
-    return DebateEvaluation(summary: summary);
+    return DebateEvaluation(
+      score: score,
+      logicScore: logicScore,
+      persuasionScore: persuasionScore,
+      strengths: strengths,
+      weaknesses: weaknesses,
+      summary: feedback,
+      rawChat: rawChat,
+    );
   }
 }

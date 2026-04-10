@@ -29,9 +29,7 @@ class DebateRepositoryImpl implements DebateRepository {
   }
 
   @override
-  Future<void> resetDebate({
-    required DebateSessionConfig config,
-  }) {
-    return remoteDataSource.resetDebate(config: config);
+  Future<void> resetDebate() {
+    return remoteDataSource.resetDebate();
   }
 }

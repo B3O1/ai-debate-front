@@ -10,7 +10,5 @@ abstract class DebateRepository {
 
   Future<DebateEvaluation> evaluateDebate();
 
-  Future<void> resetDebate({
-    required DebateSessionConfig config,
-  });
+  Future<void> resetDebate();
 }

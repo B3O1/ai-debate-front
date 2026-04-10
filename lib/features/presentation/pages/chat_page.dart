@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/di/injection.dart';
-import '../../domain/entities/debate_style.dart';
 import '../../domain/entities/debate_session_config.dart';
 import '../bloc/chat_bloc.dart';
 import '../bloc/chat_event.dart';
 import '../bloc/chat_state.dart';
-import '../widgets/chat_message_bubble.dart';
+import '../widgets/chat/chat_header.dart';
+import '../widgets/chat/chat_input_panel.dart';
+import '../widgets/chat/chat_message_list.dart';
 
 class ChatPage extends StatelessWidget {
   final DebateSessionConfig config;
@@ -36,6 +36,40 @@ class _ChatView extends StatefulWidget {
 class _ChatViewState extends State<_ChatView> {
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final FocusNode _inputFocusNode = FocusNode();
+  bool _pendingSubmitAfterComposition = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _inputController.addListener(_handleInputControllerChanged);
+  }
+
+  void _handleInputControllerChanged() {
+    if (!_pendingSubmitAfterComposition) {
+      return;
+    }
+
+    final currentValue = _inputController.value;
+    final isComposing =
+        currentValue.composing.isValid && !currentValue.composing.isCollapsed;
+
+    if (isComposing) {
+      return;
+    }
+
+    _pendingSubmitAfterComposition = false;
+
+    if (!mounted) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _submitCurrentMessage(context);
+      }
+    });
+  }
 
   bool _isNearBottom() {
     if (!_scrollController.hasClients) {
@@ -54,6 +88,7 @@ class _ChatViewState extends State<_ChatView> {
         currentValue.composing.isValid && !currentValue.composing.isCollapsed;
 
     if (isComposing) {
+      _pendingSubmitAfterComposition = true;
       return;
     }
 
@@ -66,12 +101,19 @@ class _ChatViewState extends State<_ChatView> {
     _inputController.clear();
     context.read<ChatBloc>().add(const ChatInputChanged(''));
     context.read<ChatBloc>().add(ChatSubmitted(raw));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _inputFocusNode.requestFocus();
+      }
+    });
   }
 
   @override
   void dispose() {
+    _inputController.removeListener(_handleInputControllerChanged);
     _inputController.dispose();
     _scrollController.dispose();
+    _inputFocusNode.dispose();
     super.dispose();
   }
 
@@ -186,170 +228,37 @@ class _ChatViewState extends State<_ChatView> {
                             ),
                             child: Column(
                               children: [
-                                _ChatHeader(config: widget.config),
+                                ChatHeader(config: widget.config),
                                 Expanded(
-                                  child: ListView(
+                                  child: ChatMessageList(
                                     controller: _scrollController,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 28,
-                                      vertical: 24,
-                                    ),
-                                    children: [
-                                      for (final message in state.messages)
-                                        ChatMessageBubble(message: message),
-                                      if (state.isSending)
-                                        const _AiTypingBubble(),
-                                    ],
+                                    messages: state.messages,
+                                    isSending: state.isSending,
                                   ),
                                 ),
-                                Container(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    28,
-                                    18,
-                                    28,
-                                    20,
-                                  ),
-                                  decoration: const BoxDecoration(
-                                    border: Border(
-                                      top: BorderSide(color: Color(0xFFE6EDF7)),
-                                    ),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 20,
-                                                    vertical: 6,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xFFF8FAFE),
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                                border: Border.all(
-                                                  color: const Color(
-                                                    0xFFD6E3FF,
-                                                  ),
-                                                ),
-                                              ),
-                                              child: Focus(
-                                                onKeyEvent: (_, event) {
-                                                  if (event is KeyDownEvent &&
-                                                      event.logicalKey ==
-                                                          LogicalKeyboardKey
-                                                              .enter &&
-                                                      HardwareKeyboard
-                                                          .instance
-                                                          .isShiftPressed) {
-                                                    final value =
-                                                        _inputController.value;
-                                                    final selection =
-                                                        value.selection;
-
-                                                    final start =
-                                                        selection.isValid
-                                                        ? selection.start
-                                                        : value.text.length;
-                                                    final end = selection.isValid
-                                                        ? selection.end
-                                                        : value.text.length;
-
-                                                    final newText = value.text
-                                                        .replaceRange(
-                                                          start,
-                                                          end,
-                                                          '\n',
-                                                        );
-
-                                                    _inputController.value =
-                                                        TextEditingValue(
-                                                          text: newText,
-                                                          selection:
-                                                              TextSelection.collapsed(
-                                                                offset:
-                                                                    start + 1,
-                                                              ),
-                                                        );
-
-                                                    context
-                                                        .read<ChatBloc>()
-                                                        .add(
-                                                          ChatInputChanged(
-                                                            newText,
-                                                          ),
-                                                        );
-
-                                                    return KeyEventResult
-                                                        .handled;
-                                                  }
-
-                                                  return KeyEventResult.ignored;
-                                                },
-                                                child: TextField(
-                                                  controller: _inputController,
-                                                  maxLines: 4,
-                                                  minLines: 1,
-                                                  keyboardType:
-                                                      TextInputType.multiline,
-                                                  textInputAction:
-                                                      TextInputAction.send,
-                                                  onSubmitted: (_) {
-                                                    _submitCurrentMessage(
-                                                      context,
-                                                    );
-                                                  },
-                                                  onChanged: (value) {
-                                                    context
-                                                        .read<ChatBloc>()
-                                                        .add(
-                                                          ChatInputChanged(
-                                                            value,
-                                                          ),
-                                                        );
-                                                  },
-                                                  decoration: const InputDecoration(
-                                                    border: InputBorder.none,
-                                                    hintText:
-                                                        '상대방의 논리에 반박할 내용을 입력하세요...',
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          _ActionButton(
-                                            icon: Icons.send_rounded,
-                                            enabled: state.canSend,
-                                            onTap: () {
-                                              _submitCurrentMessage(context);
-                                            },
-                                          ),
-                                          const SizedBox(width: 10),
-                                          _ActionButton(
-                                            icon: Icons.refresh_rounded,
-                                            enabled: !state.isResetting,
-                                            onTap: () {
-                                              context.read<ChatBloc>().add(
-                                                const DebateResetRequested(),
-                                              );
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 12),
-                                      const Text(
-                                        'Shift + Enter 를 눌러 줄바꿈을 할 수 있습니다.',
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                          color: Color(0xFF94A3B8),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                ChatInputPanel(
+                                  controller: _inputController,
+                                  focusNode: _inputFocusNode,
+                                  canSend: state.canSend,
+                                  isResetting: state.isResetting,
+                                  onChanged: (value) {
+                                    context.read<ChatBloc>().add(
+                                      ChatInputChanged(value),
+                                    );
+                                  },
+                                  onSubmit: () {
+                                    _submitCurrentMessage(context);
+                                  },
+                                  onReset: () {
+                                    context.read<ChatBloc>().add(
+                                      const DebateResetRequested(),
+                                    );
+                                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                                      if (mounted) {
+                                        _inputFocusNode.requestFocus();
+                                      }
+                                    });
+                                  },
                                 ),
                               ],
                             ),
@@ -362,189 +271,6 @@ class _ChatViewState extends State<_ChatView> {
               );
             },
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ChatHeader extends StatelessWidget {
-  final DebateSessionConfig config;
-
-  const _ChatHeader({required this.config});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 20),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFFE6EDF7))),
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () => Navigator.of(context).maybePop(),
-            icon: const Icon(
-              Icons.arrow_back_rounded,
-              color: Color(0xFF64748B),
-            ),
-            tooltip: '뒤로가기',
-          ),
-          const SizedBox(width: 4),
-          const CircleAvatar(
-            radius: 22,
-            backgroundColor: Color(0xFF2F6BFF),
-            child: Icon(Icons.chat_bubble_outline, color: Colors.white),
-          ),
-          const SizedBox(width: 14),
-          const Text(
-            'AI 토론',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF1F2937),
-            ),
-          ),
-          const Spacer(),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFE8EC),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  config.style.modeLabel,
-                  style: const TextStyle(
-                    color: Color(0xFFFF4D67),
-                    fontWeight: FontWeight.w800,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                config.topic,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF1F2937),
-                ),
-              ),
-            ],
-          ),
-          const Spacer(),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF1F2937),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            onPressed: () {
-              context.read<ChatBloc>().add(const DebateEvaluationRequested());
-            },
-            child: const Text(
-              '토론 종료 및 종합 분석',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AiTypingBubble extends StatelessWidget {
-  const _AiTypingBubble();
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const _TypingDot(delay: 0),
-            const SizedBox(width: 4),
-            const _TypingDot(delay: 120),
-            const SizedBox(width: 4),
-            const _TypingDot(delay: 240),
-            const SizedBox(width: 12),
-            Text(
-              'AI가 입력 중입니다...',
-              style: TextStyle(
-                color: const Color(0xFF7B879D).withOpacity(0.95),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _TypingDot extends StatelessWidget {
-  final int delay;
-
-  const _TypingDot({required this.delay});
-
-  @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.35, end: 1),
-      duration: Duration(milliseconds: 600 + delay),
-      curve: Curves.easeInOut,
-      builder: (context, value, child) {
-        return Opacity(opacity: value, child: child);
-      },
-      onEnd: () {},
-      child: Container(
-        width: 8,
-        height: 8,
-        decoration: const BoxDecoration(
-          color: Color(0xFF9DB2D3),
-          shape: BoxShape.circle,
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final bool enabled;
-  final VoidCallback onTap;
-
-  const _ActionButton({
-    required this.icon,
-    required this.enabled,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 54,
-      height: 54,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: enabled ? const Color(0xFF2F6BFF) : const Color(0xFFD6E3FF),
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: IconButton(
-          onPressed: enabled ? onTap : null,
-          icon: Icon(icon, color: Colors.white),
         ),
       ),
     );

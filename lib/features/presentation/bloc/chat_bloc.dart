@@ -42,7 +42,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     final welcomeMessage = _buildWelcomeMessage(event.config);
 
     try {
-      await resetDebate(config: event.config);
+      await resetDebate();
       emit(
         state.copyWith(
           messages: [welcomeMessage],
@@ -121,7 +121,18 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     DebateEvaluationRequested event,
     Emitter<ChatState> emit,
   ) async {
+    final config = state.config;
+
     if (state.isEvaluating) {
+      return;
+    }
+
+    if (config == null) {
+      emit(
+        state.copyWith(
+          errorMessage: '평가에 필요한 토론 세션 정보가 없습니다. 다시 시작해주세요.',
+        ),
+      );
       return;
     }
 
@@ -179,18 +190,30 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         return;
       }
 
-      await resetDebate(config: config);
+      final safeConfig = config;
+
+      await resetDebate();
       emit(
         state.copyWith(
           isResetting: false,
-          messages: config == null ? const [] : [_buildWelcomeMessage(config)],
+          messages: [_buildWelcomeMessage(safeConfig)],
         ),
       );
     } catch (_) {
+      if (config == null) {
+        emit(
+          state.copyWith(
+            isResetting: false,
+            errorMessage: '세션 초기화에 실패했습니다.',
+          ),
+        );
+        return;
+      }
+
       emit(
         state.copyWith(
           isResetting: false,
-          messages: config == null ? state.messages : [_buildWelcomeMessage(config)],
+          messages: [_buildWelcomeMessage(config)],
           errorMessage: '세션 초기화에 실패했습니다.',
         ),
       );

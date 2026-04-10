@@ -13,13 +13,12 @@ abstract class DebateRemoteDataSource {
 
   Future<DebateEvaluationModel> evaluateDebate();
 
-  Future<void> resetDebate({
-    required DebateSessionConfig config,
-  });
+  Future<void> resetDebate();
 }
 
 class DebateRemoteDataSourceImpl implements DebateRemoteDataSource {
   final Dio dio;
+  static const String _defaultSessionId = 'default';
 
   const DebateRemoteDataSourceImpl(this.dio);
 
@@ -28,26 +27,9 @@ class DebateRemoteDataSourceImpl implements DebateRemoteDataSource {
     required DebateSessionConfig config,
     required String message,
   }) async {
-    final topicBackground = config.isCustomTopic
-        ? '사용자가 직접 입력한 논제입니다.'
-        : '선택된 논제를 기준으로 토론합니다.';
-
     final response = await dio.post(
       'chat',
-      data: {
-        'user_id': 'guest',
-        'session_id': 'default',
-        'topic': config.topic,
-        'message': message,
-        'model_type': 'groq',
-        'personality': config.style.personalityValue,
-        'attitude': config.style.attitudeValue,
-        'atmosphere': config.style.atmosphereValue,
-        'background': topicBackground,
-        'goal': '사용자의 주장에 논리적으로 반박하고 토론을 이어간다.',
-        'condition':
-            '항상 한국어로 답변하고, 사용자의 주장에 직접 반박하되 선택된 스타일 톤을 유지한다.',
-      },
+      data: _buildChatRequestBody(config: config, message: message),
     );
 
     return ChatMessageModel.fromApi(response.data);
@@ -55,25 +37,42 @@ class DebateRemoteDataSourceImpl implements DebateRemoteDataSource {
 
   @override
   Future<DebateEvaluationModel> evaluateDebate() async {
-    final response = await dio.post('evaluate');
-    return DebateEvaluationModel.fromApi(response.data);
+    final response = await dio.post(
+      'evaluate',
+      options: Options(
+        receiveTimeout: const Duration(seconds: 90),
+        sendTimeout: const Duration(seconds: 60),
+      ),
+      data: {'session_id': _defaultSessionId},
+    );
+    return DebateEvaluationModel.fromApi(response.data as Map<String, dynamic>);
   }
 
   @override
-  Future<void> resetDebate({
+  Future<void> resetDebate() async {
+    await dio.post('reset', data: {'session_id': _defaultSessionId});
+  }
+
+  Map<String, dynamic> _buildChatRequestBody({
     required DebateSessionConfig config,
-  }) async {
-    await dio.post(
-      'reset',
-      data: {
-        'user_id': 'guest',
-        'session_id': 'default',
-        'topic': config.topic,
-        'model_type': 'groq',
-        'personality': config.style.personalityValue,
-        'attitude': config.style.attitudeValue,
-        'atmosphere': config.style.atmosphereValue,
-      },
-    );
+    required String message,
+  }) {
+    final topicBackground = config.isCustomTopic
+        ? '사용자가 직접 입력한 논제입니다.'
+        : '선택한 토론 논제를 기준으로 토론을 진행합니다.';
+
+    return {
+      'user_id': 'guest',
+      'session_id': _defaultSessionId,
+      'message': message,
+      'model_type': 'groq',
+      'personality': config.style.personalityValue,
+      'attitude': config.style.attitudeValue,
+      'atmosphere': config.style.atmosphereValue,
+      'topic': config.topic,
+      'background': topicBackground,
+      'goal': '상대의 주장에 반박하고 토론을 이어간다.',
+      'condition': '항상 한국어로 답변하고 선택된 스타일 톤을 유지한다.',
+    };
   }
 }
