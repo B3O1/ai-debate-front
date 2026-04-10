@@ -37,7 +37,7 @@ class _EvaluationView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F6FB),
+      backgroundColor: const Color(0xFFF0F4FA),
       body: SafeArea(
         child: BlocBuilder<EvaluationBloc, EvaluationState>(
           builder: (context, state) {
@@ -53,14 +53,26 @@ class _EvaluationView extends StatelessWidget {
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 1200),
-                  child: Container(
-                    padding: const EdgeInsets.all(28),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFD),
-                      borderRadius: BorderRadius.circular(28),
-                      border: Border.all(color: const Color(0xFFE7ECF5)),
+              child: Container(
+                padding: const EdgeInsets.all(28),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(color: const Color(0xFFE2EAF6)),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x100F172A),
+                      blurRadius: 36,
+                      offset: Offset(0, 18),
                     ),
-                    child: Column(
+                    BoxShadow(
+                      color: Color(0x080F172A),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         EvaluationHeader(
