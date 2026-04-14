@@ -204,17 +204,22 @@ class _ChatViewState extends State<_ChatView> {
             builder: (context, state) {
               return LayoutBuilder(
                 builder: (context, constraints) {
+                  final isMobile = constraints.maxWidth < 700;
+                  final outerPadding = isMobile ? 8.0 : 16.0;
+
                   return Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(outerPadding),
                     child: Center(
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 1280),
                         child: SizedBox(
-                          height: constraints.maxHeight - 32,
+                          height: constraints.maxHeight - (outerPadding * 2),
                           child: Container(
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(30),
+                              borderRadius: BorderRadius.circular(
+                                isMobile ? 22 : 30,
+                              ),
                               border: Border.all(
                                 color: const Color(0xFFDDE6F3),
                               ),

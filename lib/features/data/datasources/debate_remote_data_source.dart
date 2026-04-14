@@ -65,7 +65,7 @@ class DebateRemoteDataSourceImpl implements DebateRemoteDataSource {
       'user_id': 'guest',
       'session_id': _defaultSessionId,
       'message': message,
-      'model_type': 'groq',
+      'model_type': 'cohere',
       'personality': config.style.personalityValue,
       'attitude': config.style.attitudeValue,
       'atmosphere': config.style.atmosphereValue,

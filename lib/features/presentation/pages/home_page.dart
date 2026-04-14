@@ -61,23 +61,48 @@ class _HomeViewState extends State<_HomeView> {
             builder: (context, state) {
               return LayoutBuilder(
                 builder: (context, constraints) {
+                  final isMobile = constraints.maxWidth < 700;
+                  final isTabletLandscape =
+                      constraints.maxWidth >= 900 &&
+                      constraints.maxWidth > constraints.maxHeight;
+                  final horizontalPadding = isMobile ? 16.0 : 28.0;
+                  final verticalPadding = isTabletLandscape
+                      ? 20.0
+                      : isMobile
+                      ? 20.0
+                      : 40.0;
+                  final containerPadding = isTabletLandscape
+                      ? 24.0
+                      : isMobile
+                      ? 20.0
+                      : 32.0;
+                  final topicAreaHeightBudget = isTabletLandscape
+                      ? constraints.maxHeight -
+                            (verticalPadding * 2) -
+                            (containerPadding * 2) -
+                            200
+                      : null;
+
                   return SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 28,
-                      vertical: 40,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: horizontalPadding,
+                      vertical: verticalPadding,
                     ),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight - 80,
+                        minHeight:
+                            constraints.maxHeight - (verticalPadding * 2),
                       ),
                       child: Center(
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 1280),
                           child: Container(
-                            padding: const EdgeInsets.all(32),
+                            padding: EdgeInsets.all(containerPadding),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(28),
+                              borderRadius: BorderRadius.circular(
+                                isMobile ? 22 : 28,
+                              ),
                               border: Border.all(
                                 color: const Color(0xFFDDE6F3),
                               ),
@@ -98,7 +123,7 @@ class _HomeViewState extends State<_HomeView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const HomeHeaderSection(),
-                                const SizedBox(height: 32),
+                                SizedBox(height: isMobile ? 24 : 32),
                                 if (state.isLoading)
                                   const Center(
                                     child: Padding(
@@ -126,6 +151,8 @@ class _HomeViewState extends State<_HomeView> {
                                 else
                                   HomeTopicGrid(
                                     topics: state.topics,
+                                    availableHeight: topicAreaHeightBudget,
+                                    compactLandscape: isTabletLandscape,
                                     selectedTopicId: state.selectedTopicId,
                                     hoveredTopicId: state.hoveredTopicId,
                                     customTopicController:
@@ -151,8 +178,15 @@ class _HomeViewState extends State<_HomeView> {
                                       );
                                     },
                                   ),
-                                const SizedBox(height: 40),
+                                SizedBox(
+                                  height: isTabletLandscape
+                                      ? 20
+                                      : isMobile
+                                      ? 24
+                                      : 40,
+                                ),
                                 HomeActionPanel(
+                                  compact: isTabletLandscape,
                                   selectedStyle: state.selectedStyle,
                                   hoveredStyle: state.hoveredStyle,
                                   onStyleTapped: (style) {

@@ -22,7 +22,7 @@ class EvaluationScoreSummaryCard extends StatelessWidget {
         evaluation?.logicScore != null && evaluation?.persuasionScore != null;
 
     return Container(
-      constraints: const BoxConstraints(minHeight: 640),
+      constraints: const BoxConstraints(minHeight: 0),
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -104,7 +104,7 @@ class EvaluationLoadingScoreCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(minHeight: 640),
+      constraints: const BoxConstraints(minHeight: 0),
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         color: Colors.white,

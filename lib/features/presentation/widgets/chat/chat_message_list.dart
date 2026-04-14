@@ -18,9 +18,14 @@ class ChatMessageList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.sizeOf(context).width < 700;
+
     return ListView(
       controller: controller,
-      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 16 : 28,
+        vertical: isMobile ? 16 : 24,
+      ),
       children: [
         for (final message in messages) ChatMessageBubble(message: message),
         if (isSending) const AiTypingBubble(),
