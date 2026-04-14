@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 class ChatInputPanel extends StatelessWidget {
   final TextEditingController controller;
+  final FocusNode focusNode;
   final bool canSend;
   final bool isResetting;
   final ValueChanged<String> onChanged;
@@ -12,6 +13,7 @@ class ChatInputPanel extends StatelessWidget {
   const ChatInputPanel({
     super.key,
     required this.controller,
+    required this.focusNode,
     required this.canSend,
     required this.isResetting,
     required this.onChanged,
@@ -40,8 +42,10 @@ class ChatInputPanel extends StatelessWidget {
           if (isMobile) ...[
             _InputField(
               controller: controller,
+              focusNode: focusNode,
               onChanged: onChanged,
               onSubmit: onSubmit,
+              mobile: true,
             ),
             const SizedBox(height: 12),
             Row(
@@ -71,8 +75,10 @@ class ChatInputPanel extends StatelessWidget {
                 Expanded(
                   child: _InputField(
                     controller: controller,
+                    focusNode: focusNode,
                     onChanged: onChanged,
                     onSubmit: onSubmit,
+                    mobile: false,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -108,13 +114,17 @@ class ChatInputPanel extends StatelessWidget {
 
 class _InputField extends StatelessWidget {
   final TextEditingController controller;
+  final FocusNode focusNode;
   final ValueChanged<String> onChanged;
   final VoidCallback onSubmit;
+  final bool mobile;
 
   const _InputField({
     required this.controller,
+    required this.focusNode,
     required this.onChanged,
     required this.onSubmit,
+    required this.mobile,
   });
 
   @override
@@ -128,36 +138,28 @@ class _InputField extends StatelessWidget {
       ),
       child: Focus(
         onKeyEvent: (_, event) {
-          if (event is KeyDownEvent &&
-              event.logicalKey == LogicalKeyboardKey.enter &&
-              HardwareKeyboard.instance.isShiftPressed) {
-            final value = controller.value;
-            final selection = value.selection;
-
-            final start = selection.isValid
-                ? selection.start
-                : value.text.length;
-            final end = selection.isValid ? selection.end : value.text.length;
-
-            final newText = value.text.replaceRange(start, end, '\n');
-
-            controller.value = TextEditingValue(
-              text: newText,
-              selection: TextSelection.collapsed(offset: start + 1),
-            );
-
-            onChanged(newText);
-            return KeyEventResult.handled;
+          if (event is! KeyDownEvent ||
+              event.logicalKey != LogicalKeyboardKey.enter) {
+            return KeyEventResult.ignored;
           }
 
-          return KeyEventResult.ignored;
+          if (HardwareKeyboard.instance.isShiftPressed) {
+            return KeyEventResult.ignored;
+          }
+
+          onSubmit();
+          return KeyEventResult.handled;
         },
         child: TextField(
           controller: controller,
+          focusNode: focusNode,
+          autofocus: true,
           maxLines: 4,
           minLines: 1,
           keyboardType: TextInputType.multiline,
-          textInputAction: TextInputAction.send,
+          textInputAction: mobile
+              ? TextInputAction.send
+              : TextInputAction.newline,
           onSubmitted: (_) => onSubmit(),
           onChanged: onChanged,
           decoration: const InputDecoration(

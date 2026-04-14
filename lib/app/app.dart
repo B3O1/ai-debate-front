@@ -15,6 +15,15 @@ class App extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2f6BFF)),
         scaffoldBackgroundColor: const Color(0xFFFFFFFF),
+        fontFamily: 'Pretendard',
+        fontFamilyFallback: const [
+          'Apple SD Gothic Neo',
+          'Malgun Gothic',
+          'Nanum Gothic',
+          'Noto Sans KR',
+          'Noto Sans CJK KR',
+          'sans-serif',
+        ],
         useMaterial3: true,
       ),
     );

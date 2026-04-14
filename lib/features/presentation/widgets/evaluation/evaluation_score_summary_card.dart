@@ -48,27 +48,9 @@ class EvaluationScoreSummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: 30),
           Center(
-            child: RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: hasScoreData ? '${evaluation!.score}' : '--',
-                    style: const TextStyle(
-                      fontSize: 60,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF111827),
-                    ),
-                  ),
-                  const TextSpan(
-                    text: '점',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF98A2B3),
-                    ),
-                  ),
-                ],
-              ),
+            child: CircularScoreGauge(
+              score: evaluation?.score,
+              hasData: hasScoreData,
             ),
           ),
           const SizedBox(height: 14),
@@ -77,7 +59,7 @@ class EvaluationScoreSummaryCard extends StatelessWidget {
               state is EvaluationError
                   ? '유효한 총점 데이터를 받지 못했습니다. score, logic_score, persuasion_score를 확인해주세요.'
                   : hasScoreData
-                  ? '서버에서 전달한 평가 총점입니다.'
+                  ? 'AI 토론 평가 총점입니다.'
                   : '총점 데이터를 불러오는 중입니다',
               textAlign: TextAlign.center,
               style: const TextStyle(
@@ -147,9 +129,7 @@ class EvaluationLoadingScoreCard extends StatelessWidget {
             ),
           ),
           SizedBox(height: 28),
-          Center(
-            child: EvaluationSkeletonBox(width: 120, height: 72, radius: 18),
-          ),
+          Center(child: _LoadingCircularScoreGauge()),
           SizedBox(height: 18),
           Center(
             child: EvaluationSkeletonBox(width: 180, height: 18, radius: 999),
@@ -166,6 +146,140 @@ class EvaluationLoadingScoreCard extends StatelessWidget {
           EvaluationSkeletonMetricCard(),
           SizedBox(height: 16),
           EvaluationSkeletonMetricCard(),
+        ],
+      ),
+    );
+  }
+}
+
+class CircularScoreGauge extends StatelessWidget {
+  final int? score;
+  final bool hasData;
+
+  const CircularScoreGauge({
+    super.key,
+    required this.score,
+    required this.hasData,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final safeScore = (score ?? 0).clamp(0, 100);
+    final progress = hasData ? safeScore / 100 : 0.0;
+
+    return SizedBox(
+      width: 210,
+      height: 210,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          SizedBox(
+            width: 210,
+            height: 210,
+            child: CircularProgressIndicator(
+              value: 1,
+              strokeWidth: 14,
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                Color(0xFFF0F4FA),
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 210,
+            height: 210,
+            child: CircularProgressIndicator(
+              value: progress,
+              strokeWidth: 14,
+              strokeCap: StrokeCap.round,
+              backgroundColor: Colors.transparent,
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                Color(0xFF2F6BFF),
+              ),
+            ),
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: hasData ? '$safeScore' : '--',
+                      style: const TextStyle(
+                        fontSize: 60,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF111827),
+                      ),
+                    ),
+                    const TextSpan(
+                      text: '',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF98A2B3),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                '100점 만점',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF98A2B3),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LoadingCircularScoreGauge extends StatelessWidget {
+  const _LoadingCircularScoreGauge();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 210,
+      height: 210,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          const SizedBox(
+            width: 210,
+            height: 210,
+            child: CircularProgressIndicator(
+              value: 1,
+              strokeWidth: 14,
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFF0F4FA)),
+            ),
+          ),
+          SizedBox(
+            width: 210,
+            height: 210,
+            child: CircularProgressIndicator(
+              value: 0.66,
+              strokeWidth: 14,
+              strokeCap: StrokeCap.round,
+              backgroundColor: Colors.transparent,
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                Color(0xFFDDE8FF),
+              ),
+            ),
+          ),
+          const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              EvaluationSkeletonBox(width: 86, height: 58, radius: 18),
+              SizedBox(height: 10),
+              EvaluationSkeletonBox(width: 82, height: 16, radius: 999),
+            ],
+          ),
         ],
       ),
     );
