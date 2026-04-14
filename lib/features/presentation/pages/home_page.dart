@@ -62,9 +62,26 @@ class _HomeViewState extends State<_HomeView> {
               return LayoutBuilder(
                 builder: (context, constraints) {
                   final isMobile = constraints.maxWidth < 700;
+                  final isTabletLandscape =
+                      constraints.maxWidth >= 900 &&
+                      constraints.maxWidth > constraints.maxHeight;
                   final horizontalPadding = isMobile ? 16.0 : 28.0;
-                  final verticalPadding = isMobile ? 20.0 : 40.0;
-                  final containerPadding = isMobile ? 20.0 : 32.0;
+                  final verticalPadding = isTabletLandscape
+                      ? 20.0
+                      : isMobile
+                      ? 20.0
+                      : 40.0;
+                  final containerPadding = isTabletLandscape
+                      ? 24.0
+                      : isMobile
+                      ? 20.0
+                      : 32.0;
+                  final topicAreaHeightBudget = isTabletLandscape
+                      ? constraints.maxHeight -
+                            (verticalPadding * 2) -
+                            (containerPadding * 2) -
+                            200
+                      : null;
 
                   return SingleChildScrollView(
                     padding: EdgeInsets.symmetric(
@@ -134,6 +151,8 @@ class _HomeViewState extends State<_HomeView> {
                                 else
                                   HomeTopicGrid(
                                     topics: state.topics,
+                                    availableHeight: topicAreaHeightBudget,
+                                    compactLandscape: isTabletLandscape,
                                     selectedTopicId: state.selectedTopicId,
                                     hoveredTopicId: state.hoveredTopicId,
                                     customTopicController:
@@ -159,8 +178,15 @@ class _HomeViewState extends State<_HomeView> {
                                       );
                                     },
                                   ),
-                                SizedBox(height: isMobile ? 24 : 40),
+                                SizedBox(
+                                  height: isTabletLandscape
+                                      ? 20
+                                      : isMobile
+                                      ? 24
+                                      : 40,
+                                ),
                                 HomeActionPanel(
+                                  compact: isTabletLandscape,
                                   selectedStyle: state.selectedStyle,
                                   hoveredStyle: state.hoveredStyle,
                                   onStyleTapped: (style) {

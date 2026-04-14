@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../domain/entities/debate_style.dart';
 
 class DebateStyleSection extends StatelessWidget {
+  final bool compact;
   final DebateStyle? selectedStyle;
   final DebateStyle? hoveredStyle;
   final ValueChanged<DebateStyle> onStyleTapped;
@@ -11,6 +12,7 @@ class DebateStyleSection extends StatelessWidget {
 
   const DebateStyleSection({
     super.key,
+    this.compact = false,
     required this.selectedStyle,
     required this.hoveredStyle,
     required this.onStyleTapped,
@@ -21,6 +23,7 @@ class DebateStyleSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isCompact = MediaQuery.sizeOf(context).width < 520;
+    final isDense = compact && !isCompact;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,26 +39,35 @@ class DebateStyleSection extends StatelessWidget {
             Text(
               'AI 반박 스타일 선택',
               style: TextStyle(
-                fontSize: isCompact ? 18 : 20,
+                fontSize: isCompact
+                    ? 18
+                    : isDense
+                    ? 18
+                    : 20,
                 fontWeight: FontWeight.w700,
                 color: const Color(0xFF243041),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 18),
+        SizedBox(height: isDense ? 14 : 18),
         _SlidingSegmentedControl(
+          compact: compact,
           selectedStyle: selectedStyle,
           hoveredStyle: hoveredStyle,
           onStyleTapped: onStyleTapped,
           onStyleHoverEnter: onStyleHoverEnter,
           onStyleHoverExit: onStyleHoverExit,
         ),
-        const SizedBox(height: 14),
+        SizedBox(height: isDense ? 10 : 14),
         Text(
           _description(selectedStyle),
           style: TextStyle(
-            fontSize: isCompact ? 14 : 15,
+            fontSize: isCompact
+                ? 14
+                : isDense
+                ? 13
+                : 15,
             color: const Color(0xFF66748E),
             fontWeight: FontWeight.w500,
           ),
@@ -79,6 +91,7 @@ class DebateStyleSection extends StatelessWidget {
 }
 
 class _SlidingSegmentedControl extends StatelessWidget {
+  final bool compact;
   final DebateStyle? selectedStyle;
   final DebateStyle? hoveredStyle;
   final ValueChanged<DebateStyle> onStyleTapped;
@@ -86,6 +99,7 @@ class _SlidingSegmentedControl extends StatelessWidget {
   final VoidCallback onStyleHoverExit;
 
   const _SlidingSegmentedControl({
+    required this.compact,
     required this.selectedStyle,
     required this.hoveredStyle,
     required this.onStyleTapped,
@@ -134,8 +148,8 @@ class _SlidingSegmentedControl extends StatelessWidget {
     }
 
     return Container(
-      height: 58,
-      padding: const EdgeInsets.all(6),
+      height: compact ? 52 : 58,
+      padding: EdgeInsets.all(compact ? 5 : 6),
       decoration: BoxDecoration(
         color: const Color(0xFFE8EDF6),
         borderRadius: BorderRadius.circular(18),

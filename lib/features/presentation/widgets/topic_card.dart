@@ -64,6 +64,7 @@ class TopicCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isCompact = width < 200;
+    final isNarrow = width < 150;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -77,7 +78,13 @@ class TopicCard extends StatelessWidget {
           curve: Curves.easeOut,
           width: width,
           height: height,
-          padding: EdgeInsets.all(isCompact ? 16 : 20),
+          padding: EdgeInsets.all(
+            isNarrow
+                ? 12
+                : isCompact
+                ? 14
+                : 20,
+          ),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(22),
@@ -97,18 +104,32 @@ class TopicCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _CategoryChip(category: topic.category),
-              SizedBox(height: isCompact ? 14 : 18),
-              Text(
-                topic.title,
-                style: TextStyle(
-                  fontSize: isCompact ? 15 : 17,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1D2433),
-                  height: 1.5,
+              _CategoryChip(category: topic.category, compact: isNarrow),
+              SizedBox(
+                height: isNarrow
+                    ? 10
+                    : isCompact
+                    ? 12
+                    : 18,
+              ),
+              Expanded(
+                child: Text(
+                  topic.title,
+                  maxLines: isNarrow ? 4 : 5,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: isNarrow
+                        ? 13
+                        : isCompact
+                        ? 14
+                        : 17,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF1D2433),
+                    height: isNarrow ? 1.35 : 1.5,
+                  ),
                 ),
               ),
-              const Spacer(),
+              SizedBox(height: isNarrow ? 8 : 12),
               Align(
                 alignment: Alignment.bottomRight,
                 child: Icon(
@@ -116,7 +137,7 @@ class TopicCard extends StatelessWidget {
                   color: isSelected
                       ? const Color(0xFF2F6BFF)
                       : const Color(0xFFC0CADB),
-                  size: 26,
+                  size: isNarrow ? 20 : 26,
                 ),
               ),
             ],
@@ -129,8 +150,9 @@ class TopicCard extends StatelessWidget {
 
 class _CategoryChip extends StatelessWidget {
   final String category;
+  final bool compact;
 
-  const _CategoryChip({required this.category});
+  const _CategoryChip({required this.category, this.compact = false});
 
   Color _backgroundColor() {
     switch (category) {
@@ -185,7 +207,10 @@ class _CategoryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 8 : 10,
+        vertical: compact ? 4 : 6,
+      ),
       decoration: BoxDecoration(
         color: _backgroundColor(),
         borderRadius: BorderRadius.circular(10),
@@ -193,7 +218,7 @@ class _CategoryChip extends StatelessWidget {
       child: Text(
         category,
         style: TextStyle(
-          fontSize: 14,
+          fontSize: compact ? 12 : 14,
           fontWeight: FontWeight.w700,
           color: _textColor(),
         ),

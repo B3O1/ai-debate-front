@@ -37,6 +37,7 @@ class CustomTopicCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isCompact = width < 200;
+    final isNarrow = width < 150;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -50,7 +51,13 @@ class CustomTopicCard extends StatelessWidget {
           curve: Curves.easeOut,
           width: width,
           height: height,
-          padding: EdgeInsets.all(isCompact ? 16 : 20),
+          padding: EdgeInsets.all(
+            isNarrow
+                ? 12
+                : isCompact
+                ? 14
+                : 20,
+          ),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(22),
@@ -87,13 +94,13 @@ class CustomTopicCard extends StatelessWidget {
                       child: const Text(
                         '직접 입력',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF5B6880),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 14),
+                    SizedBox(height: isNarrow ? 10 : 14),
                     Expanded(
                       child: TextField(
                         autofocus: true,
@@ -106,19 +113,23 @@ class CustomTopicCard extends StatelessWidget {
                           isCollapsed: true,
                         ),
                         style: TextStyle(
-                          fontSize: isCompact ? 15 : 16,
+                          fontSize: isNarrow
+                              ? 13
+                              : isCompact
+                              ? 14
+                              : 16,
                           fontWeight: FontWeight.w600,
                           color: const Color(0xFF4D5B73),
-                          height: 1.5,
+                          height: isNarrow ? 1.35 : 1.5,
                         ),
                       ),
                     ),
-                    const Align(
+                    Align(
                       alignment: Alignment.bottomRight,
                       child: Icon(
                         Icons.check_circle,
                         color: Color(0xFF2F6BFF),
-                        size: 24,
+                        size: isNarrow ? 20 : 24,
                       ),
                     ),
                   ],
@@ -126,16 +137,24 @@ class CustomTopicCard extends StatelessWidget {
               : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.add, size: 38, color: Color(0xFF6A7892)),
-                    const SizedBox(height: 16),
+                    Icon(
+                      Icons.add,
+                      size: isNarrow ? 28 : 38,
+                      color: const Color(0xFF6A7892),
+                    ),
+                    SizedBox(height: isNarrow ? 10 : 16),
                     Text(
                       '원하는 주제가 없으신가요?',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: isCompact ? 16 : 18,
+                        fontSize: isNarrow
+                            ? 13
+                            : isCompact
+                            ? 15
+                            : 18,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF66748E),
-                        height: 1.5,
+                        color: const Color(0xFF66748E),
+                        height: isNarrow ? 1.35 : 1.5,
                       ),
                     ),
                   ],

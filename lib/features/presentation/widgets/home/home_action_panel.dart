@@ -5,6 +5,7 @@ import '../debate_style_section.dart';
 import '../start_debate_button.dart';
 
 class HomeActionPanel extends StatelessWidget {
+  final bool compact;
   final DebateStyle? selectedStyle;
   final DebateStyle? hoveredStyle;
   final ValueChanged<DebateStyle> onStyleTapped;
@@ -15,6 +16,7 @@ class HomeActionPanel extends StatelessWidget {
 
   const HomeActionPanel({
     super.key,
+    this.compact = false,
     required this.selectedStyle,
     required this.hoveredStyle,
     required this.onStyleTapped,
@@ -30,7 +32,13 @@ class HomeActionPanel extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(isMobile ? 20 : 24),
+      padding: EdgeInsets.all(
+        compact
+            ? 18
+            : isMobile
+            ? 20
+            : 24,
+      ),
       decoration: BoxDecoration(
         color: const Color(0xFFF7FAFE),
         borderRadius: BorderRadius.circular(24),
@@ -41,6 +49,7 @@ class HomeActionPanel extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 DebateStyleSection(
+                  compact: compact,
                   selectedStyle: selectedStyle,
                   hoveredStyle: hoveredStyle,
                   onStyleTapped: onStyleTapped,
@@ -51,6 +60,7 @@ class HomeActionPanel extends StatelessWidget {
                 StartDebateButton(
                   enabled: isStartEnabled,
                   onPressed: onStartPressed,
+                  compact: compact,
                   fullWidth: true,
                 ),
               ],
@@ -61,6 +71,7 @@ class HomeActionPanel extends StatelessWidget {
                 Expanded(
                   flex: 3,
                   child: DebateStyleSection(
+                    compact: compact,
                     selectedStyle: selectedStyle,
                     hoveredStyle: hoveredStyle,
                     onStyleTapped: onStyleTapped,
@@ -74,6 +85,7 @@ class HomeActionPanel extends StatelessWidget {
                     alignment: Alignment.centerRight,
                     child: StartDebateButton(
                       enabled: isStartEnabled,
+                      compact: compact,
                       onPressed: onStartPressed,
                     ),
                   ),
