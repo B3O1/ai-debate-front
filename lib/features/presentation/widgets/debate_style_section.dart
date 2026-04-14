@@ -20,19 +20,25 @@ class DebateStyleSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCompact = MediaQuery.sizeOf(context).width < 520;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
-            Icon(Icons.psychology_outlined, size: 20, color: Color(0xFF344054)),
-            SizedBox(width: 8),
+            const Icon(
+              Icons.psychology_outlined,
+              size: 20,
+              color: Color(0xFF344054),
+            ),
+            const SizedBox(width: 8),
             Text(
               'AI 반박 스타일 선택',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: isCompact ? 18 : 20,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF243041),
+                color: const Color(0xFF243041),
               ),
             ),
           ],
@@ -48,9 +54,9 @@ class DebateStyleSection extends StatelessWidget {
         const SizedBox(height: 14),
         Text(
           _description(selectedStyle),
-          style: const TextStyle(
-            fontSize: 15,
-            color: Color(0xFF66748E),
+          style: TextStyle(
+            fontSize: isCompact ? 14 : 15,
+            color: const Color(0xFF66748E),
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -102,6 +108,31 @@ class _SlidingSegmentedControl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCompact = MediaQuery.sizeOf(context).width < 520;
+
+    if (isCompact) {
+      return Column(
+        children: DebateStyle.values
+            .map(
+              (style) => Padding(
+                padding: EdgeInsets.only(
+                  bottom: style == DebateStyle.kind ? 0 : 10,
+                ),
+                child: _SegmentedStyleLabel(
+                  label: style.label,
+                  isSelected: selectedStyle == style,
+                  isHovered: hoveredStyle == style,
+                  onTap: () => onStyleTapped(style),
+                  onHoverEnter: () => onStyleHoverEnter(style),
+                  onHoverExit: onStyleHoverExit,
+                  compact: true,
+                ),
+              ),
+            )
+            .toList(),
+      );
+    }
+
     return Container(
       height: 58,
       padding: const EdgeInsets.all(6),
@@ -191,6 +222,7 @@ class _SegmentedStyleLabel extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onHoverEnter;
   final VoidCallback onHoverExit;
+  final bool compact;
 
   const _SegmentedStyleLabel({
     required this.label,
@@ -199,6 +231,7 @@ class _SegmentedStyleLabel extends StatelessWidget {
     required this.onTap,
     required this.onHoverEnter,
     required this.onHoverExit,
+    this.compact = false,
   });
 
   @override
@@ -211,12 +244,28 @@ class _SegmentedStyleLabel extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         onTap: onTap,
         child: Container(
+          height: compact ? 52 : null,
+          padding: compact
+              ? const EdgeInsets.symmetric(horizontal: 18)
+              : EdgeInsets.zero,
           alignment: Alignment.center,
+          decoration: compact
+              ? BoxDecoration(
+                  color: isSelected ? Colors.white : const Color(0xFFE8EDF6),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isSelected
+                        ? const Color(0xFF2F6BFF)
+                        : Colors.transparent,
+                    width: 2,
+                  ),
+                )
+              : null,
           child: AnimatedDefaultTextStyle(
             duration: const Duration(milliseconds: 180),
             curve: Curves.easeOut,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: compact ? 15 : 16,
               fontWeight: FontWeight.w700,
               color: isSelected
                   ? const Color(0xFF245DFF)

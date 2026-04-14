@@ -26,39 +26,60 @@ class HomeActionPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.sizeOf(context).width < 900;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(isMobile ? 20 : 24),
       decoration: BoxDecoration(
         color: const Color(0xFFF7FAFE),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFE4EBF5)),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            flex: 3,
-            child: DebateStyleSection(
-              selectedStyle: selectedStyle,
-              hoveredStyle: hoveredStyle,
-              onStyleTapped: onStyleTapped,
-              onStyleHoverEnter: onStyleHoverEnter,
-              onStyleHoverExit: onStyleHoverExit,
+      child: isMobile
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                DebateStyleSection(
+                  selectedStyle: selectedStyle,
+                  hoveredStyle: hoveredStyle,
+                  onStyleTapped: onStyleTapped,
+                  onStyleHoverEnter: onStyleHoverEnter,
+                  onStyleHoverExit: onStyleHoverExit,
+                ),
+                const SizedBox(height: 20),
+                StartDebateButton(
+                  enabled: isStartEnabled,
+                  onPressed: onStartPressed,
+                  fullWidth: true,
+                ),
+              ],
+            )
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: DebateStyleSection(
+                    selectedStyle: selectedStyle,
+                    hoveredStyle: hoveredStyle,
+                    onStyleTapped: onStyleTapped,
+                    onStyleHoverEnter: onStyleHoverEnter,
+                    onStyleHoverExit: onStyleHoverExit,
+                  ),
+                ),
+                const SizedBox(width: 24),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: StartDebateButton(
+                      enabled: isStartEnabled,
+                      onPressed: onStartPressed,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(width: 24),
-          Expanded(
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: StartDebateButton(
-                enabled: isStartEnabled,
-                onPressed: onStartPressed,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

@@ -9,10 +9,7 @@ import 'evaluation_skeletons.dart';
 class EvaluationScoreSummaryCard extends StatelessWidget {
   final EvaluationState state;
 
-  const EvaluationScoreSummaryCard({
-    super.key,
-    required this.state,
-  });
+  const EvaluationScoreSummaryCard({super.key, required this.state});
 
   DebateEvaluation? get _evaluation =>
       state is EvaluationLoaded ? (state as EvaluationLoaded).evaluation : null;
@@ -21,11 +18,11 @@ class EvaluationScoreSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final evaluation = _evaluation;
     final hasScoreData = state is EvaluationLoaded && evaluation?.score != null;
-    final hasRatioData = evaluation?.logicScore != null &&
-        evaluation?.persuasionScore != null;
+    final hasRatioData =
+        evaluation?.logicScore != null && evaluation?.persuasionScore != null;
 
     return Container(
-      constraints: const BoxConstraints(minHeight: 640),
+      constraints: const BoxConstraints(minHeight: 0),
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -125,7 +122,7 @@ class EvaluationLoadingScoreCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(minHeight: 640),
+      constraints: const BoxConstraints(minHeight: 0),
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -158,7 +155,11 @@ class EvaluationLoadingScoreCard extends StatelessWidget {
             child: EvaluationSkeletonBox(width: 180, height: 18, radius: 999),
           ),
           SizedBox(height: 38),
-          EvaluationSkeletonBox(width: double.infinity, height: 14, radius: 999),
+          EvaluationSkeletonBox(
+            width: double.infinity,
+            height: 14,
+            radius: 999,
+          ),
           SizedBox(height: 10),
           EvaluationSkeletonBox(width: 180, height: 12, radius: 999),
           SizedBox(height: 28),

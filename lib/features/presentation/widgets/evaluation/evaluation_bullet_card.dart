@@ -17,9 +17,7 @@ class EvaluationBulletCard extends StatelessWidget {
   List<String> get _items {
     if (state is EvaluationLoaded) {
       final evaluation = (state as EvaluationLoaded).evaluation;
-      return title == '주요 강점'
-          ? evaluation.strengths
-          : evaluation.weaknesses;
+      return title == '주요 강점' ? evaluation.strengths : evaluation.weaknesses;
     }
 
     return const [];
@@ -42,7 +40,7 @@ class EvaluationBulletCard extends StatelessWidget {
     final items = _items;
 
     return Container(
-      height: 255,
+      constraints: const BoxConstraints(minHeight: 255),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,

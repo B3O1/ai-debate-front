@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class CustomTopicCard extends StatelessWidget {
+  final double width;
+  final double height;
   final bool isSelected;
   final bool isHovered;
   final TextEditingController controller;
@@ -11,6 +13,8 @@ class CustomTopicCard extends StatelessWidget {
 
   const CustomTopicCard({
     super.key,
+    required this.width,
+    required this.height,
     required this.isSelected,
     required this.isHovered,
     required this.controller,
@@ -32,6 +36,8 @@ class CustomTopicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCompact = width < 200;
+
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => onHoverEnter(),
@@ -42,9 +48,9 @@ class CustomTopicCard extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
           curve: Curves.easeOut,
-          width: 220,
-          height: 220,
-          padding: const EdgeInsets.all(20),
+          width: width,
+          height: height,
+          padding: EdgeInsets.all(isCompact ? 16 : 20),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(22),
@@ -99,10 +105,10 @@ class CustomTopicCard extends StatelessWidget {
                           border: InputBorder.none,
                           isCollapsed: true,
                         ),
-                        style: const TextStyle(
-                          fontSize: 16,
+                        style: TextStyle(
+                          fontSize: isCompact ? 15 : 16,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF4D5B73),
+                          color: const Color(0xFF4D5B73),
                           height: 1.5,
                         ),
                       ),
@@ -117,16 +123,16 @@ class CustomTopicCard extends StatelessWidget {
                     ),
                   ],
                 )
-              : const Column(
+              : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.add, size: 38, color: Color(0xFF6A7892)),
-                    SizedBox(height: 18),
+                    const Icon(Icons.add, size: 38, color: Color(0xFF6A7892)),
+                    const SizedBox(height: 16),
                     Text(
                       '원하는 주제가 없으신가요?',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: isCompact ? 16 : 18,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF66748E),
                         height: 1.5,

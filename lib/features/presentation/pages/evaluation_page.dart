@@ -13,10 +13,7 @@ import '../widgets/evaluation/evaluation_loading_content.dart';
 class EvaluationPage extends StatelessWidget {
   final DebateSessionConfig config;
 
-  const EvaluationPage({
-    super.key,
-    required this.config,
-  });
+  const EvaluationPage({super.key, required this.config});
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +27,7 @@ class EvaluationPage extends StatelessWidget {
 class _EvaluationView extends StatelessWidget {
   final DebateSessionConfig config;
 
-  const _EvaluationView({
-    required this.config,
-  });
+  const _EvaluationView({required this.config});
 
   @override
   Widget build(BuildContext context) {
@@ -41,23 +36,22 @@ class _EvaluationView extends StatelessWidget {
       body: SafeArea(
         child: BlocBuilder<EvaluationBloc, EvaluationState>(
           builder: (context, state) {
-            final body = state is EvaluationLoading || state is EvaluationInitial
+            final body =
+                state is EvaluationLoading || state is EvaluationInitial
                 ? EvaluationLoadingContent(config: config)
-                : EvaluationLoadedContent(
-                    config: config,
-                    state: state,
-                  );
+                : EvaluationLoadedContent(config: config, state: state);
+            final isMobile = MediaQuery.sizeOf(context).width < 760;
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(isMobile ? 16 : 24),
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 1200),
                   child: Container(
-                    padding: const EdgeInsets.all(28),
+                    padding: EdgeInsets.all(isMobile ? 20 : 28),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF8FAFD),
-                      borderRadius: BorderRadius.circular(28),
+                      borderRadius: BorderRadius.circular(isMobile ? 22 : 28),
                       border: Border.all(color: const Color(0xFFE7ECF5)),
                     ),
                     child: Column(
@@ -70,7 +64,7 @@ class _EvaluationView extends StatelessWidget {
                             ).popUntil((route) => route.isFirst);
                           },
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(height: isMobile ? 20 : 24),
                         body,
                       ],
                     ),

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../domain/entities/home_item.dart';
 
 class TopicCard extends StatelessWidget {
+  final double width;
+  final double height;
   final HomeItem topic;
   final bool isSelected;
   final bool isHovered;
@@ -12,6 +14,8 @@ class TopicCard extends StatelessWidget {
 
   const TopicCard({
     super.key,
+    required this.width,
+    required this.height,
     required this.topic,
     required this.isSelected,
     required this.isHovered,
@@ -59,6 +63,8 @@ class TopicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCompact = width < 200;
+
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => onHoverEnter(),
@@ -69,9 +75,9 @@ class TopicCard extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
           curve: Curves.easeOut,
-          width: 220,
-          height: 220,
-          padding: const EdgeInsets.all(20),
+          width: width,
+          height: height,
+          padding: EdgeInsets.all(isCompact ? 16 : 20),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(22),
@@ -92,13 +98,13 @@ class TopicCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _CategoryChip(category: topic.category),
-              const SizedBox(height: 18),
+              SizedBox(height: isCompact ? 14 : 18),
               Text(
                 topic.title,
-                style: const TextStyle(
-                  fontSize: 17,
+                style: TextStyle(
+                  fontSize: isCompact ? 15 : 17,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF1D2433),
+                  color: const Color(0xFF1D2433),
                   height: 1.5,
                 ),
               ),

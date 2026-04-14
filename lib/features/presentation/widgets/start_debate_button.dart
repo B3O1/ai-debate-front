@@ -3,17 +3,19 @@ import 'package:flutter/material.dart';
 class StartDebateButton extends StatelessWidget {
   final bool enabled;
   final VoidCallback? onPressed;
+  final bool fullWidth;
 
   const StartDebateButton({
     super.key,
     required this.enabled,
     required this.onPressed,
+    this.fullWidth = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 220,
+      width: fullWidth ? double.infinity : 220,
       height: 52,
       child: ElevatedButton(
         onPressed: enabled ? onPressed : null,
