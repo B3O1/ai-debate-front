@@ -128,7 +128,27 @@ class _ChatViewState extends State<_ChatView> {
               listenWhen: (previous, current) =>
                   previous.input != current.input,
               listener: (context, state) {
-                if (_inputController.text != state.input) {
+                if (_inputController.text == state.input) {
+                  return;
+                }
+
+                final currentValue = _inputController.value;
+                final isComposing =
+                    currentValue.composing.isValid &&
+                    !currentValue.composing.isCollapsed;
+
+                // Keep the native IME in control while the user is typing.
+                // We only force-sync when the bloc explicitly clears the field.
+                if (isComposing) {
+                  return;
+                }
+
+                if (state.input.isEmpty) {
+                  _inputController.clear();
+                  return;
+                }
+
+                if (!_inputFocusNode.hasFocus) {
                   _inputController.value = TextEditingValue(
                     text: state.input,
                     selection: TextSelection.collapsed(
