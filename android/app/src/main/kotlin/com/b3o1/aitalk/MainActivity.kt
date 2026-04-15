@@ -1,4 +1,4 @@
-package com.example.b3o1
+package com.b3o1.aitalk
 
 import io.flutter.embedding.android.FlutterActivity
 
