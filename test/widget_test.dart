@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:b3o1/app/app.dart';
+import 'package:b3o1/app/router/app_router.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const App());
+  test('App can be created', () {
+    expect(const App(), isA<StatelessWidget>());
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  test('App router exposes expected route names', () {
+    expect(AppRouter.home, '/');
+    expect(AppRouter.chat, '/chat');
+    expect(AppRouter.evaluation, '/evaluation');
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  test('App router handles unknown routes', () {
+    final route = AppRouter.onGenerateRoute(
+      const RouteSettings(name: '/missing'),
+    );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(route, isA<MaterialPageRoute<dynamic>>());
+    expect(route.settings.name, '/missing');
   });
 }
