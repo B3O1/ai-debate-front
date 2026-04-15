@@ -38,10 +38,16 @@ jobs:
           pod install --repo-update
 
       - name: Configure iOS signing
-        if: ${{ secrets.IOS_DEVELOPMENT_TEAM != '' }}
+        env:
+          IOS_DEVELOPMENT_TEAM: ${{ secrets.IOS_DEVELOPMENT_TEAM }}
         run: |
+          if [ -z "$IOS_DEVELOPMENT_TEAM" ]; then
+            echo "IOS_DEVELOPMENT_TEAM is not set, skipping local signing config."
+            exit 0
+          fi
+
           cat <<EOF > ios/Flutter/Signing.xcconfig
-          DEVELOPMENT_TEAM = ${{ secrets.IOS_DEVELOPMENT_TEAM }}
+          DEVELOPMENT_TEAM = $IOS_DEVELOPMENT_TEAM
           CODE_SIGN_STYLE = Automatic
           EOF
 
