@@ -1,5 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/network/network_error_mapper.dart';
 import '../../../domain/entities/chat_message.dart';
 import '../../../domain/entities/debate_session_config.dart';
 import '../../../domain/usecases/evaluate_debate.dart';
@@ -93,12 +95,23 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       emit(
         state.copyWith(isSending: false, messages: [...pendingMessages, reply]),
       );
+    } on DioException catch (error) {
+      emit(
+        state.copyWith(
+          isSending: false,
+          messages: pendingMessages,
+          errorMessage: NetworkErrorMapper.toUserMessage(
+            error,
+            requestLabel: '채팅 요청',
+          ),
+        ),
+      );
     } catch (_) {
       emit(
         state.copyWith(
           isSending: false,
           messages: pendingMessages,
-          errorMessage: '채팅 요청에 실패했습니다. 요청 body와 응답 필드를 확인해주세요.',
+          errorMessage: '채팅 요청 처리 중 예기치 못한 오류가 발생했습니다. 요청 값과 서버 로그를 함께 확인해주세요.',
         ),
       );
     }
@@ -130,11 +143,22 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     try {
       final result = await evaluateDebate();
       emit(state.copyWith(isEvaluating: false, evaluation: result));
+    } on DioException catch (error) {
+      emit(
+        state.copyWith(
+          isEvaluating: false,
+          errorMessage: NetworkErrorMapper.toUserMessage(
+            error,
+            requestLabel: '평가 요청',
+          ),
+        ),
+      );
     } catch (_) {
       emit(
         state.copyWith(
           isEvaluating: false,
-          errorMessage: '평가 요청에 실패했습니다. API 응답 형식을 확인해주세요.',
+          errorMessage:
+              '평가 요청 처리 중 예기치 못한 오류가 발생했습니다. API 응답 형식과 서버 로그를 확인해주세요.',
         ),
       );
     }

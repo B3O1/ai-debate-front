@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../domain/entities/debate_style.dart';
 import '../../domain/entities/debate_session_config.dart';
@@ -18,9 +21,10 @@ abstract class DebateRemoteDataSource {
 
 class DebateRemoteDataSourceImpl implements DebateRemoteDataSource {
   final Dio dio;
-  static const String _defaultSessionId = 'default';
+  static final Random _random = Random();
+  String _sessionId = _createSessionId();
 
-  const DebateRemoteDataSourceImpl(this.dio);
+  DebateRemoteDataSourceImpl(this.dio);
 
   @override
   Future<ChatMessageModel> sendChatMessage({
@@ -29,6 +33,10 @@ class DebateRemoteDataSourceImpl implements DebateRemoteDataSource {
   }) async {
     final response = await dio.post(
       'chat',
+      options: Options(
+        receiveTimeout: const Duration(seconds: 60),
+        sendTimeout: const Duration(seconds: 60),
+      ),
       data: _buildChatRequestBody(config: config, message: message),
     );
 
@@ -43,14 +51,16 @@ class DebateRemoteDataSourceImpl implements DebateRemoteDataSource {
         receiveTimeout: const Duration(seconds: 90),
         sendTimeout: const Duration(seconds: 60),
       ),
-      data: {'session_id': _defaultSessionId},
+      data: {'session_id': _sessionId},
     );
     return DebateEvaluationModel.fromApi(response.data as Map<String, dynamic>);
   }
 
   @override
   Future<void> resetDebate() async {
-    await dio.post('reset', data: {'session_id': _defaultSessionId});
+    _sessionId = _createSessionId();
+    debugPrint('[DebateRemoteDataSource] started session $_sessionId');
+    await dio.post('reset', data: {'session_id': _sessionId});
   }
 
   Map<String, dynamic> _buildChatRequestBody({
@@ -63,9 +73,9 @@ class DebateRemoteDataSourceImpl implements DebateRemoteDataSource {
 
     return {
       'user_id': 'guest',
-      'session_id': _defaultSessionId,
+      'session_id': _sessionId,
       'message': message,
-      'model_type': 'cohere',
+      'model_type': 'groq',
       'personality': config.style.personalityValue,
       'attitude': config.style.attitudeValue,
       'atmosphere': config.style.atmosphereValue,
@@ -74,5 +84,14 @@ class DebateRemoteDataSourceImpl implements DebateRemoteDataSource {
       'goal': '상대의 주장에 반박하고 토론을 이어간다.',
       'condition': '항상 한국어로 답변하고 선택된 스타일 톤을 유지한다.',
     };
+  }
+
+  static String _createSessionId() {
+    final timestamp = DateTime.now().microsecondsSinceEpoch;
+    final randomSuffix = List.generate(
+      8,
+      (_) => _random.nextInt(16).toRadixString(16),
+    ).join();
+    return 'session-$timestamp-$randomSuffix';
   }
 }

@@ -24,10 +24,26 @@ class DebateEvaluationModel {
       score: _asInt(data['score']),
       logicScore: _asInt(data['logic_score']),
       persuasionScore: _asInt(data['persuasion_score']),
-      strengths: _asStringList(data['strengths']),
-      weaknesses: _asStringList(data['weaknesses']),
-      feedback: _asString(data['feedback']),
-      rawChat: _asString(data['raw_chat']),
+      strengths: _asStringList(
+        data['strengths'] ?? data['strength'] ?? data['strong_points'],
+      ),
+      weaknesses: _asStringList(
+        data['weaknesses'] ??
+            data['weakness'] ??
+            data['improvements'] ??
+            data['points_to_improve'],
+      ),
+      feedback: _firstNonEmptyString([
+        data['feedback'],
+        data['ai_summary'],
+        data['summary'],
+      ]),
+      rawChat: _firstNonEmptyString([
+        data['raw_chat'],
+        data['ai_history'],
+        data['chat_history'],
+        data['transcript'],
+      ]),
     );
   }
 
@@ -54,13 +70,29 @@ class DebateEvaluationModel {
   static List<String> _asStringList(dynamic value) {
     if (value is List) {
       return value
-          .whereType<String>()
-          .map((item) => item.trim())
+          .map((item) => _asString(item))
           .where((item) => item.toLowerCase() != 'string')
           .where((item) => item.isNotEmpty)
           .toList();
     }
+    if (value is String) {
+      final normalized = value.trim();
+      if (normalized.isEmpty || normalized.toLowerCase() == 'string') {
+        return const [];
+      }
+      return [normalized];
+    }
     return const [];
+  }
+
+  static String _firstNonEmptyString(List<dynamic> values) {
+    for (final value in values) {
+      final normalized = _asString(value);
+      if (normalized.isNotEmpty) {
+        return normalized;
+      }
+    }
+    return '';
   }
 
   DebateEvaluation toEntity() {

@@ -18,15 +18,14 @@ class DebateEvaluation {
   });
 
   bool get hasRequiredPresentationData {
-    return score != null &&
-        score! > 0 &&
-        logicScore != null &&
-        logicScore! > 0 &&
-        persuasionScore != null &&
-        persuasionScore! > 0 &&
-        strengths.isNotEmpty &&
-        weaknesses.isNotEmpty &&
-        summary.trim().isNotEmpty &&
+    final hasScoreData =
+        score != null && logicScore != null && persuasionScore != null;
+    final hasCoachingData =
+        summary.trim().isNotEmpty ||
+        strengths.isNotEmpty ||
+        weaknesses.isNotEmpty ||
         rawChat.trim().isNotEmpty;
+
+    return hasScoreData && hasCoachingData;
   }
 }
