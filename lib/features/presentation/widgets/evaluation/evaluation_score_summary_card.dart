@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/debate_evaluation.dart';
-import '../../bloc/evaluation_state.dart';
+import '../../bloc/evaluation/evaluation_state.dart';
 import 'evaluation_mini_score_tile.dart';
 import 'evaluation_preference_bar.dart';
 import 'evaluation_skeletons.dart';

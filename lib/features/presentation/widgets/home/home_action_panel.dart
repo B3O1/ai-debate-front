@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/debate_style.dart';
-import '../debate_style_section.dart';
-import '../start_debate_button.dart';
+import 'debate_style_section.dart';
+import 'start_debate_button.dart';
 
 class HomeActionPanel extends StatelessWidget {
   final bool compact;

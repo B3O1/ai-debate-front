@@ -1,4 +1,4 @@
-import '../../domain/entities/debate_session_config.dart';
+import '../../../domain/entities/debate_session_config.dart';
 
 abstract class ChatEvent {
   const ChatEvent();

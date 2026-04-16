@@ -8,9 +8,9 @@ import 'package:b3o1/features/domain/repositories/debate_repository.dart';
 import 'package:b3o1/features/domain/usecases/evaluate_debate.dart';
 import 'package:b3o1/features/domain/usecases/reset_debate.dart';
 import 'package:b3o1/features/domain/usecases/send_chat_message.dart';
-import 'package:b3o1/features/presentation/bloc/chat_bloc.dart';
-import 'package:b3o1/features/presentation/bloc/chat_event.dart';
-import 'package:b3o1/features/presentation/bloc/chat_state.dart';
+import 'package:b3o1/features/presentation/bloc/chat/chat_bloc.dart';
+import 'package:b3o1/features/presentation/bloc/chat/chat_event.dart';
+import 'package:b3o1/features/presentation/bloc/chat/chat_state.dart';
 
 class _FakeDebateRepository implements DebateRepository {
   _FakeDebateRepository({

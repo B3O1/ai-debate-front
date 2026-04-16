@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../bloc/evaluation_state.dart';
+import '../../bloc/evaluation/evaluation_state.dart';
 
 class EvaluationBulletCard extends StatelessWidget {
   final EvaluationState state;

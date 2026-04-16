@@ -1,4 +1,4 @@
-import '../../domain/entities/debate_evaluation.dart';
+import '../../../domain/entities/debate_evaluation.dart';
 
 abstract class EvaluationState {
   const EvaluationState();

@@ -1,4 +1,4 @@
-import '../../domain/entities/debate_style.dart';
+import '../../../domain/entities/debate_style.dart';
 
 abstract class HomeEvent {
   const HomeEvent();

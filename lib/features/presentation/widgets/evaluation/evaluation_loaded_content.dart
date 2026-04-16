@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/debate_session_config.dart';
-import '../../bloc/evaluation_state.dart';
+import '../../bloc/evaluation/evaluation_state.dart';
 import 'evaluation_bullet_card.dart';
 import 'evaluation_coaching_card.dart';
 import 'evaluation_score_summary_card.dart';

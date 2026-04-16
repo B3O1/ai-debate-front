@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/home_item.dart';
-import '../custom_topic_card.dart';
-import '../topic_card.dart';
+import 'custom_topic_card.dart';
+import 'topic_card.dart';
 
 class HomeTopicGrid extends StatelessWidget {
   final List<HomeItem> topics;

@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/di/injection.dart';
 import '../../domain/entities/debate_session_config.dart';
-import '../bloc/evaluation_bloc.dart';
-import '../bloc/evaluation_event.dart';
-import '../bloc/evaluation_state.dart';
+import '../bloc/evaluation/evaluation_bloc.dart';
+import '../bloc/evaluation/evaluation_event.dart';
+import '../bloc/evaluation/evaluation_state.dart';
 import '../widgets/evaluation/evaluation_header.dart';
 import '../widgets/evaluation/evaluation_loaded_content.dart';
 import '../widgets/evaluation/evaluation_loading_content.dart';
@@ -38,8 +38,8 @@ class _EvaluationView extends StatelessWidget {
           builder: (context, state) {
             final body =
                 state is EvaluationLoading || state is EvaluationInitial
-                ? EvaluationLoadingContent(config: config)
-                : EvaluationLoadedContent(config: config, state: state);
+                    ? EvaluationLoadingContent(config: config)
+                    : EvaluationLoadedContent(config: config, state: state);
             final isMobile = MediaQuery.sizeOf(context).width < 760;
 
             return SingleChildScrollView(
