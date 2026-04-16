@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:dio/dio.dart';
 
 import 'package:b3o1/features/domain/entities/chat_message.dart';
 import 'package:b3o1/features/domain/entities/debate_evaluation.dart';
@@ -17,17 +18,19 @@ class _FakeDebateRepository implements DebateRepository {
     Future<ChatMessage> Function({
       required DebateSessionConfig config,
       required String message,
-    })? sendChatMessageImpl,
+    })?
+    sendChatMessageImpl,
     Future<DebateEvaluation> Function()? evaluateDebateImpl,
     Future<void> Function()? resetDebateImpl,
-  })  : _sendChatMessageImpl = sendChatMessageImpl,
-        _evaluateDebateImpl = evaluateDebateImpl,
-        _resetDebateImpl = resetDebateImpl;
+  }) : _sendChatMessageImpl = sendChatMessageImpl,
+       _evaluateDebateImpl = evaluateDebateImpl,
+       _resetDebateImpl = resetDebateImpl;
 
   final Future<ChatMessage> Function({
     required DebateSessionConfig config,
     required String message,
-  })? _sendChatMessageImpl;
+  })?
+  _sendChatMessageImpl;
   final Future<DebateEvaluation> Function()? _evaluateDebateImpl;
   final Future<void> Function()? _resetDebateImpl;
 
@@ -36,10 +39,7 @@ class _FakeDebateRepository implements DebateRepository {
     required DebateSessionConfig config,
     required String message,
   }) {
-    return _sendChatMessageImpl!(
-      config: config,
-      message: message,
-    );
+    return _sendChatMessageImpl!(config: config, message: message);
   }
 
   @override
@@ -63,28 +63,31 @@ void main() {
     Future<ChatMessage> Function({
       required DebateSessionConfig config,
       required String message,
-    })? sendChatMessageImpl,
+    })?
+    sendChatMessageImpl,
     Future<DebateEvaluation> Function()? evaluateDebateImpl,
     Future<void> Function()? resetDebateImpl,
   }) {
     final repository = _FakeDebateRepository(
-      sendChatMessageImpl: sendChatMessageImpl ??
+      sendChatMessageImpl:
+          sendChatMessageImpl ??
           ({required config, required message}) async => ChatMessage(
-                id: 'assistant-1',
-                text: '반박 응답',
-                isUser: false,
-                createdAt: DateTime(2026),
-              ),
-      evaluateDebateImpl: evaluateDebateImpl ??
+            id: 'assistant-1',
+            text: '반박 응답',
+            isUser: false,
+            createdAt: DateTime(2026),
+          ),
+      evaluateDebateImpl:
+          evaluateDebateImpl ??
           () async => const DebateEvaluation(
-                score: 80,
-                logicScore: 40,
-                persuasionScore: 40,
-                strengths: ['논리'],
-                weaknesses: ['근거'],
-                summary: '요약',
-                rawChat: '대화',
-              ),
+            score: 80,
+            logicScore: 40,
+            persuasionScore: 40,
+            strengths: ['논리'],
+            weaknesses: ['근거'],
+            summary: '요약',
+            rawChat: '대화',
+          ),
       resetDebateImpl: resetDebateImpl ?? () async {},
     );
 
@@ -122,10 +125,7 @@ void main() {
       expect(emitted.first.config?.topic, config.topic);
       expect(emitted.last.messages, hasLength(1));
       expect(emitted.last.messages.first.isUser, isFalse);
-      expect(
-        emitted.last.messages.first.text,
-        contains('먼저 주장을 말씀해주시면'),
-      );
+      expect(emitted.last.messages.first.text, contains('먼저 주장을 말씀해주시면'));
 
       await bloc.close();
     });
@@ -154,12 +154,13 @@ void main() {
 
     test('메시지 전송 실패 시 사용자 메시지는 유지하고 오류를 노출한다', () async {
       final bloc = buildBloc(
-        sendChatMessageImpl: ({
-          required DebateSessionConfig config,
-          required String message,
-        }) async {
-          throw Exception('server error');
-        },
+        sendChatMessageImpl:
+            ({
+              required DebateSessionConfig config,
+              required String message,
+            }) async {
+              throw Exception('server error');
+            },
       );
       bloc.add(const ChatStarted(config));
       await Future<void>.delayed(const Duration(milliseconds: 20));
@@ -175,7 +176,38 @@ void main() {
       expect(emitted.last.messages.last.text, '안녕하세요');
       expect(
         emitted.last.errorMessage,
-        '채팅 요청에 실패했습니다. 요청 body와 응답 필드를 확인해주세요.',
+        '채팅 요청 처리 중 예기치 못한 오류가 발생했습니다. 요청 값과 서버 로그를 함께 확인해주세요.',
+      );
+
+      await bloc.close();
+    });
+
+    test('메시지 전송 타임아웃 시 지연 안내 문구를 노출한다', () async {
+      final bloc = buildBloc(
+        sendChatMessageImpl:
+            ({
+              required DebateSessionConfig config,
+              required String message,
+            }) async {
+              throw DioException(
+                requestOptions: RequestOptions(path: 'chat'),
+                type: DioExceptionType.receiveTimeout,
+              );
+            },
+      );
+      bloc.add(const ChatStarted(config));
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      final emitted = await collectStates(
+        bloc,
+        () async => bloc.add(const ChatSubmitted('안녕하세요')),
+      );
+
+      expect(emitted, hasLength(2));
+      expect(emitted.last.isSending, isFalse);
+      expect(
+        emitted.last.errorMessage,
+        '채팅 요청 응답이 지연되고 있습니다. 서버 처리 시간이 길어지거나 네트워크 상태가 불안정할 수 있어요. 잠시 후 다시 시도해주세요.',
       );
 
       await bloc.close();

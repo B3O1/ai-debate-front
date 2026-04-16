@@ -7,6 +7,7 @@ import '../bloc/evaluation/evaluation_bloc.dart';
 import '../bloc/evaluation/evaluation_event.dart';
 import '../bloc/evaluation/evaluation_state.dart';
 import '../widgets/evaluation/evaluation_header.dart';
+import '../widgets/evaluation/evaluation_error_content.dart';
 import '../widgets/evaluation/evaluation_loaded_content.dart';
 import '../widgets/evaluation/evaluation_loading_content.dart';
 
@@ -36,10 +37,14 @@ class _EvaluationView extends StatelessWidget {
       body: SafeArea(
         child: BlocBuilder<EvaluationBloc, EvaluationState>(
           builder: (context, state) {
-            final body =
-                state is EvaluationLoading || state is EvaluationInitial
-                    ? EvaluationLoadingContent(config: config)
-                    : EvaluationLoadedContent(config: config, state: state);
+            final Widget body;
+            if (state is EvaluationLoading || state is EvaluationInitial) {
+              body = EvaluationLoadingContent(config: config);
+            } else if (state is EvaluationError) {
+              body = EvaluationErrorContent(config: config, state: state);
+            } else {
+              body = EvaluationLoadedContent(config: config, state: state);
+            }
             final isMobile = MediaQuery.sizeOf(context).width < 760;
 
             return SingleChildScrollView(
