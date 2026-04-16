@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../domain/entities/home_item.dart';
@@ -63,6 +64,7 @@ class TopicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isWebCard = kIsWeb && width < 220;
     final isCompact = width < 200;
     final isNarrow = width < 150;
 
@@ -115,11 +117,17 @@ class TopicCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   topic.title,
-                  maxLines: isNarrow ? 4 : 5,
+                  maxLines: isNarrow
+                      ? 4
+                      : isWebCard
+                      ? 4
+                      : 5,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: isNarrow
                         ? 13
+                        : isWebCard
+                        ? 15
                         : isCompact
                         ? 14
                         : 17,

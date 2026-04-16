@@ -126,20 +126,6 @@ class _ChatViewState extends State<_ChatView> {
           listeners: [
             BlocListener<ChatBloc, ChatState>(
               listenWhen: (previous, current) =>
-                  previous.input != current.input,
-              listener: (context, state) {
-                if (_inputController.text != state.input) {
-                  _inputController.value = TextEditingValue(
-                    text: state.input,
-                    selection: TextSelection.collapsed(
-                      offset: state.input.length,
-                    ),
-                  );
-                }
-              },
-            ),
-            BlocListener<ChatBloc, ChatState>(
-              listenWhen: (previous, current) =>
                   previous.errorMessage != current.errorMessage ||
                   previous.evaluation != current.evaluation,
               listener: (context, state) {
@@ -255,6 +241,10 @@ class _ChatViewState extends State<_ChatView> {
                                     _submitCurrentMessage(context);
                                   },
                                   onReset: () {
+                                    _inputController.clear();
+                                    context.read<ChatBloc>().add(
+                                      const ChatInputChanged(''),
+                                    );
                                     context.read<ChatBloc>().add(
                                       const DebateResetRequested(),
                                     );
