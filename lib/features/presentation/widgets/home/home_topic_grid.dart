@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/home_item.dart';
@@ -35,6 +36,71 @@ class HomeTopicGrid extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
+        final isWebLayout = kIsWeb;
+        if (isWebLayout) {
+          final webSpacing = width >= 1180
+              ? 20.0
+              : width >= 920
+              ? 18.0
+              : width >= 680
+              ? 16.0
+              : 14.0;
+          final minWebCardWidth = width >= 1180
+              ? 220.0
+              : width >= 920
+              ? 205.0
+              : width >= 680
+              ? 188.0
+              : 150.0;
+          final webColumnCount = width <= minWebCardWidth
+              ? 1
+              : ((width + webSpacing) / (minWebCardWidth + webSpacing))
+                    .floor()
+                    .clamp(1, 5);
+          final webCardWidth =
+              (width - (webSpacing * (webColumnCount - 1))) / webColumnCount;
+          final webCardHeight = (webCardWidth * 0.92).clamp(176.0, 220.0);
+
+          return GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: topics.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: webColumnCount,
+              crossAxisSpacing: webSpacing,
+              mainAxisSpacing: webSpacing,
+              mainAxisExtent: webCardHeight,
+            ),
+            itemBuilder: (context, index) {
+              final topic = topics[index];
+              if (topic.isCustomInput) {
+                return CustomTopicCard(
+                  width: webCardWidth,
+                  height: webCardHeight,
+                  isSelected: selectedTopicId == topic.id,
+                  isHovered: hoveredTopicId == topic.id,
+                  controller: customTopicController,
+                  onTap: () => onTopicTap(topic.id),
+                  onHoverEnter: () => onTopicHoverEnter(topic.id),
+                  onHoverExit: onTopicHoverExit,
+                  onChanged: onCustomTopicChanged,
+                );
+              }
+
+              return TopicCard(
+                width: webCardWidth,
+                height: webCardHeight,
+                topic: topic,
+                isSelected: selectedTopicId == topic.id,
+                isHovered: hoveredTopicId == topic.id,
+                onTap: () => onTopicTap(topic.id),
+                onHoverEnter: () => onTopicHoverEnter(topic.id),
+                onHoverExit: onTopicHoverExit,
+              );
+            },
+          );
+        }
+
         final isNarrowMobile = width < 520;
         final spacing = compactLandscape
             ? 14.0
@@ -53,7 +119,11 @@ class HomeTopicGrid extends StatelessWidget {
             : isNarrowMobile
             ? 180.0
             : 260.0;
-        final maxColumns = isNarrowMobile ? 2 : 4;
+        final maxColumns = compactLandscape
+            ? 4
+            : isNarrowMobile
+            ? 2
+            : 4;
 
         final crossAxisCount = width <= minCardWidth
             ? 1

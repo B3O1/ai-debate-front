@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -63,6 +64,7 @@ class _HomeViewState extends State<_HomeView> {
                 builder: (context, constraints) {
                   final isMobile = constraints.maxWidth < 700;
                   final isTabletLandscape =
+                      !kIsWeb &&
                       constraints.maxWidth >= 900 &&
                       constraints.maxWidth > constraints.maxHeight;
                   final horizontalPadding = isMobile ? 16.0 : 28.0;
