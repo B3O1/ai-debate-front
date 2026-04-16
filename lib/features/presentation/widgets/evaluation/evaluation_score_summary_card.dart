@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/debate_evaluation.dart';
-import '../../bloc/evaluation_state.dart';
+import '../../bloc/evaluation/evaluation_state.dart';
 import 'evaluation_mini_score_tile.dart';
 import 'evaluation_preference_bar.dart';
 import 'evaluation_skeletons.dart';
@@ -22,7 +22,7 @@ class EvaluationScoreSummaryCard extends StatelessWidget {
         evaluation?.logicScore != null && evaluation?.persuasionScore != null;
 
     return Container(
-      constraints: const BoxConstraints(minHeight: 640),
+      constraints: const BoxConstraints(minHeight: 0),
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -104,7 +104,7 @@ class EvaluationLoadingScoreCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(minHeight: 640),
+      constraints: const BoxConstraints(minHeight: 0),
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         color: Colors.white,

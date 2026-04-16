@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/di/injection.dart';
 import '../../domain/entities/debate_session_config.dart';
-import '../bloc/chat_bloc.dart';
-import '../bloc/chat_event.dart';
-import '../bloc/chat_state.dart';
+import '../bloc/chat/chat_bloc.dart';
+import '../bloc/chat/chat_event.dart';
+import '../bloc/chat/chat_state.dart';
 import '../widgets/chat/chat_header.dart';
 import '../widgets/chat/chat_input_panel.dart';
 import '../widgets/chat/chat_message_list.dart';
@@ -126,20 +126,6 @@ class _ChatViewState extends State<_ChatView> {
           listeners: [
             BlocListener<ChatBloc, ChatState>(
               listenWhen: (previous, current) =>
-                  previous.input != current.input,
-              listener: (context, state) {
-                if (_inputController.text != state.input) {
-                  _inputController.value = TextEditingValue(
-                    text: state.input,
-                    selection: TextSelection.collapsed(
-                      offset: state.input.length,
-                    ),
-                  );
-                }
-              },
-            ),
-            BlocListener<ChatBloc, ChatState>(
-              listenWhen: (previous, current) =>
                   previous.errorMessage != current.errorMessage ||
                   previous.evaluation != current.evaluation,
               listener: (context, state) {
@@ -204,17 +190,22 @@ class _ChatViewState extends State<_ChatView> {
             builder: (context, state) {
               return LayoutBuilder(
                 builder: (context, constraints) {
+                  final isMobile = constraints.maxWidth < 700;
+                  final outerPadding = isMobile ? 8.0 : 16.0;
+
                   return Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(outerPadding),
                     child: Center(
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 1280),
                         child: SizedBox(
-                          height: constraints.maxHeight - 32,
+                          height: constraints.maxHeight - (outerPadding * 2),
                           child: Container(
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(30),
+                              borderRadius: BorderRadius.circular(
+                                isMobile ? 22 : 30,
+                              ),
                               border: Border.all(
                                 color: const Color(0xFFDDE6F3),
                               ),
@@ -250,6 +241,10 @@ class _ChatViewState extends State<_ChatView> {
                                     _submitCurrentMessage(context);
                                   },
                                   onReset: () {
+                                    _inputController.clear();
+                                    context.read<ChatBloc>().add(
+                                      const ChatInputChanged(''),
+                                    );
                                     context.read<ChatBloc>().add(
                                       const DebateResetRequested(),
                                     );

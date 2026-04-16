@@ -12,9 +12,9 @@ import '../../features/domain/usecases/evaluate_debate.dart';
 import '../../features/domain/usecases/get_home_items.dart';
 import '../../features/domain/usecases/reset_debate.dart';
 import '../../features/domain/usecases/send_chat_message.dart';
-import '../../features/presentation/bloc/chat_bloc.dart';
-import '../../features/presentation/bloc/evaluation_bloc.dart';
-import '../../features/presentation/bloc/home_bloc.dart';
+import '../../features/presentation/bloc/chat/chat_bloc.dart';
+import '../../features/presentation/bloc/evaluation/evaluation_bloc.dart';
+import '../../features/presentation/bloc/home/home_bloc.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -64,8 +64,6 @@ Future<void> configureDependencies() async {
   );
 
   sl.registerFactory<EvaluationBloc>(
-    () => EvaluationBloc(
-      evaluateDebate: sl<EvaluateDebate>(),
-    ),
+    () => EvaluationBloc(evaluateDebate: sl<EvaluateDebate>()),
   );
 }

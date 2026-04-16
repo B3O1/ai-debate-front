@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../domain/entities/debate_session_config.dart';
-import '../../bloc/evaluation_bloc.dart';
-import '../../bloc/evaluation_event.dart';
-import '../../bloc/evaluation_state.dart';
+import '../../bloc/evaluation/evaluation_bloc.dart';
+import '../../bloc/evaluation/evaluation_event.dart';
+import '../../bloc/evaluation/evaluation_state.dart';
 
 class EvaluationCoachingCard extends StatelessWidget {
   final EvaluationState state;
@@ -52,11 +52,7 @@ class EvaluationCoachingCard extends StatelessWidget {
         children: [
           const Row(
             children: [
-              Icon(
-                Icons.forum_outlined,
-                size: 22,
-                color: Color(0xFF667085),
-              ),
+              Icon(Icons.forum_outlined, size: 22, color: Color(0xFF667085)),
               SizedBox(width: 10),
               Text(
                 'AI 상세 코칭',
