@@ -19,6 +19,32 @@ class EvaluationLoadedContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.sizeOf(context).width < 960;
+
+    if (isMobile) {
+      return Column(
+        children: [
+          EvaluationScoreSummaryCard(state: state),
+          const SizedBox(height: 16),
+          EvaluationTopicSummaryCard(config: config),
+          const SizedBox(height: 16),
+          EvaluationBulletCard(
+            state: state,
+            title: '주요 강점',
+            accentColor: const Color(0xFF2F6BFF),
+          ),
+          const SizedBox(height: 16),
+          EvaluationBulletCard(
+            state: state,
+            title: '보완점',
+            accentColor: const Color(0xFFFF6B6B),
+          ),
+          const SizedBox(height: 16),
+          EvaluationCoachingCard(state: state, config: config),
+        ],
+      );
+    }
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

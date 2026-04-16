@@ -36,6 +36,40 @@ class _ChatView extends StatefulWidget {
 class _ChatViewState extends State<_ChatView> {
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final FocusNode _inputFocusNode = FocusNode();
+  bool _pendingSubmitAfterComposition = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _inputController.addListener(_handleInputControllerChanged);
+  }
+
+  void _handleInputControllerChanged() {
+    if (!_pendingSubmitAfterComposition) {
+      return;
+    }
+
+    final currentValue = _inputController.value;
+    final isComposing =
+        currentValue.composing.isValid && !currentValue.composing.isCollapsed;
+
+    if (isComposing) {
+      return;
+    }
+
+    _pendingSubmitAfterComposition = false;
+
+    if (!mounted) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _submitCurrentMessage(context);
+      }
+    });
+  }
 
   bool _isNearBottom() {
     if (!_scrollController.hasClients) {
@@ -54,6 +88,7 @@ class _ChatViewState extends State<_ChatView> {
         currentValue.composing.isValid && !currentValue.composing.isCollapsed;
 
     if (isComposing) {
+      _pendingSubmitAfterComposition = true;
       return;
     }
 
@@ -66,12 +101,19 @@ class _ChatViewState extends State<_ChatView> {
     _inputController.clear();
     context.read<ChatBloc>().add(const ChatInputChanged(''));
     context.read<ChatBloc>().add(ChatSubmitted(raw));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _inputFocusNode.requestFocus();
+      }
+    });
   }
 
   @override
   void dispose() {
+    _inputController.removeListener(_handleInputControllerChanged);
     _inputController.dispose();
     _scrollController.dispose();
+    _inputFocusNode.dispose();
     super.dispose();
   }
 
@@ -82,20 +124,6 @@ class _ChatViewState extends State<_ChatView> {
       body: SafeArea(
         child: MultiBlocListener(
           listeners: [
-            BlocListener<ChatBloc, ChatState>(
-              listenWhen: (previous, current) =>
-                  previous.input != current.input,
-              listener: (context, state) {
-                if (_inputController.text != state.input) {
-                  _inputController.value = TextEditingValue(
-                    text: state.input,
-                    selection: TextSelection.collapsed(
-                      offset: state.input.length,
-                    ),
-                  );
-                }
-              },
-            ),
             BlocListener<ChatBloc, ChatState>(
               listenWhen: (previous, current) =>
                   previous.errorMessage != current.errorMessage ||
@@ -162,17 +190,22 @@ class _ChatViewState extends State<_ChatView> {
             builder: (context, state) {
               return LayoutBuilder(
                 builder: (context, constraints) {
+                  final isMobile = constraints.maxWidth < 700;
+                  final outerPadding = isMobile ? 8.0 : 16.0;
+
                   return Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(outerPadding),
                     child: Center(
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 1280),
                         child: SizedBox(
-                          height: constraints.maxHeight - 32,
+                          height: constraints.maxHeight - (outerPadding * 2),
                           child: Container(
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(30),
+                              borderRadius: BorderRadius.circular(
+                                isMobile ? 22 : 30,
+                              ),
                               border: Border.all(
                                 color: const Color(0xFFDDE6F3),
                               ),
@@ -196,6 +229,7 @@ class _ChatViewState extends State<_ChatView> {
                                 ),
                                 ChatInputPanel(
                                   controller: _inputController,
+                                  focusNode: _inputFocusNode,
                                   canSend: state.canSend,
                                   isResetting: state.isResetting,
                                   onChanged: (value) {
@@ -207,9 +241,18 @@ class _ChatViewState extends State<_ChatView> {
                                     _submitCurrentMessage(context);
                                   },
                                   onReset: () {
+                                    _inputController.clear();
+                                    context.read<ChatBloc>().add(
+                                      const ChatInputChanged(''),
+                                    );
                                     context.read<ChatBloc>().add(
                                       const DebateResetRequested(),
                                     );
+                                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                                      if (mounted) {
+                                        _inputFocusNode.requestFocus();
+                                      }
+                                    });
                                   },
                                 ),
                               ],

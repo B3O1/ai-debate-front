@@ -1,0 +1,104 @@
+name: Android Release Build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Configure Android signing
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ] || [ -z "$ANDROID_KEYSTORE_PASSWORD" ] || [ -z "$ANDROID_KEY_ALIAS" ] || [ -z "$ANDROID_KEY_PASSWORD" ]; then
+            echo "Missing Android signing secrets, using debug signing fallback."
+            exit 0
+          fi
+
+          mkdir -p android/keystore
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/keystore/upload-keystore.jks
+          cat <<EOF > android/key.properties
+          storePassword=$ANDROID_KEYSTORE_PASSWORD
+          keyPassword=$ANDROID_KEY_PASSWORD
+          keyAlias=$ANDROID_KEY_ALIAS
+          storeFile=keystore/upload-keystore.jks
+          EOF
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Build App Bundle
+        run: flutter build appbundle --release
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-aab
+          path: build/app/outputs/bundle/release/app-release.aab
+
+      - name: Install rclone
+        if: ${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON != '' && secrets.GOOGLE_DRIVE_ANDROID_FOLDER_ID != '' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rclone
+
+      - name: Upload Android release files to Google Drive
+        if: ${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON != '' && secrets.GOOGLE_DRIVE_ANDROID_FOLDER_ID != '' }}
+        shell: bash
+        env:
+          GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_DRIVE_ANDROID_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_ANDROID_FOLDER_ID }}
+        run: |
+          mkdir -p .github/tmp
+          printf '%s' "$GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON" > .github/tmp/gdrive-service-account.json
+
+          cat <<EOF > .github/tmp/rclone.conf
+          [gdrive]
+          type = drive
+          scope = drive
+          service_account_file = .github/tmp/gdrive-service-account.json
+          root_folder_id = ${GOOGLE_DRIVE_ANDROID_FOLDER_ID}
+          EOF
+
+          release_dir="android/${GITHUB_REF_NAME}/run-${GITHUB_RUN_NUMBER}-${GITHUB_SHA::7}"
+
+          rclone --config .github/tmp/rclone.conf mkdir "gdrive:${release_dir}"
+          rclone --config .github/tmp/rclone.conf copyto \
+            build/app/outputs/flutter-apk/app-release.apk \
+            "gdrive:${release_dir}/app-release.apk"
+          rclone --config .github/tmp/rclone.conf copyto \
+            build/app/outputs/bundle/release/app-release.aab \
+            "gdrive:${release_dir}/app-release.aab"

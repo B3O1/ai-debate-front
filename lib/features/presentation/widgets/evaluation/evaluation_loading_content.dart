@@ -13,6 +13,44 @@ class EvaluationLoadingContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.sizeOf(context).width < 960;
+
+    if (isMobile) {
+      return Column(
+        children: [
+          const EvaluationLoadingBanner(),
+          const SizedBox(height: 16),
+          const EvaluationLoadingScoreCard(),
+          const SizedBox(height: 16),
+          EvaluationTopicSummaryCard(config: config),
+          const SizedBox(height: 16),
+          const EvaluationLoadingCard(
+            title: '주요 강점 분석 중',
+            lines: 3,
+            icon: Icons.thumb_up_alt_outlined,
+            iconColor: Color(0xFF2F6BFF),
+            fullWidth: true,
+          ),
+          const SizedBox(height: 16),
+          const EvaluationLoadingCard(
+            title: '보완점 분석 중',
+            lines: 3,
+            icon: Icons.error_outline_rounded,
+            iconColor: Color(0xFFFF6B6B),
+            fullWidth: true,
+          ),
+          const SizedBox(height: 16),
+          const EvaluationLoadingCard(
+            title: 'AI 상세 코칭 생성 중',
+            lines: 4,
+            icon: Icons.forum_outlined,
+            iconColor: Color(0xFF667085),
+            fullWidth: true,
+          ),
+        ],
+      );
+    }
+
     return Column(
       children: [
         const EvaluationLoadingBanner(),

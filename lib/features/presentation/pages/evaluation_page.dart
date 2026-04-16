@@ -32,26 +32,39 @@ class _EvaluationView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F6FB),
+      backgroundColor: const Color(0xFFF0F4FA),
       body: SafeArea(
         child: BlocBuilder<EvaluationBloc, EvaluationState>(
           builder: (context, state) {
             final body =
                 state is EvaluationLoading || state is EvaluationInitial
-                ? EvaluationLoadingContent(config: config)
-                : EvaluationLoadedContent(config: config, state: state);
+                    ? EvaluationLoadingContent(config: config)
+                    : EvaluationLoadedContent(config: config, state: state);
+            final isMobile = MediaQuery.sizeOf(context).width < 760;
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(isMobile ? 16 : 24),
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 1200),
                   child: Container(
-                    padding: const EdgeInsets.all(28),
+                    padding: EdgeInsets.all(isMobile ? 20 : 28),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFD),
-                      borderRadius: BorderRadius.circular(28),
-                      border: Border.all(color: const Color(0xFFE7ECF5)),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(isMobile ? 22 : 28),
+                      border: Border.all(color: const Color(0xFFE2EAF6)),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x100F172A),
+                          blurRadius: 36,
+                          offset: Offset(0, 18),
+                        ),
+                        BoxShadow(
+                          color: Color(0x080F172A),
+                          blurRadius: 12,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,7 +76,7 @@ class _EvaluationView extends StatelessWidget {
                             ).popUntil((route) => route.isFirst);
                           },
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(height: isMobile ? 20 : 24),
                         body,
                       ],
                     ),

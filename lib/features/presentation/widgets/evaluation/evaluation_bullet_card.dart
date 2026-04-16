@@ -40,7 +40,7 @@ class EvaluationBulletCard extends StatelessWidget {
     final items = _items;
 
     return Container(
-      height: 255,
+      constraints: const BoxConstraints(minHeight: 255),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
