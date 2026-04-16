@@ -9,10 +9,7 @@ import 'evaluation_topic_summary_card.dart';
 class EvaluationLoadingContent extends StatelessWidget {
   final DebateSessionConfig config;
 
-  const EvaluationLoadingContent({
-    super.key,
-    required this.config,
-  });
+  const EvaluationLoadingContent({super.key, required this.config});
 
   @override
   Widget build(BuildContext context) {
@@ -22,10 +19,7 @@ class EvaluationLoadingContent extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(
-              width: 320,
-              child: EvaluationLoadingScoreCard(),
-            ),
+            const SizedBox(width: 320, child: EvaluationLoadingScoreCard()),
             const SizedBox(width: 20),
             Expanded(
               child: Column(

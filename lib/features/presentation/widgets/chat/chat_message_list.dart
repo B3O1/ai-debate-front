@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/chat_message.dart';
-import '../chat_message_bubble.dart';
+import 'chat_message_bubble.dart';
 import 'ai_typing_bubble.dart';
 
 class ChatMessageList extends StatelessWidget {

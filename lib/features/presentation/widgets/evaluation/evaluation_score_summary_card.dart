@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/debate_evaluation.dart';
-import '../../bloc/evaluation_state.dart';
+import '../../bloc/evaluation/evaluation_state.dart';
 import 'evaluation_mini_score_tile.dart';
 import 'evaluation_preference_bar.dart';
 import 'evaluation_skeletons.dart';
@@ -9,10 +9,7 @@ import 'evaluation_skeletons.dart';
 class EvaluationScoreSummaryCard extends StatelessWidget {
   final EvaluationState state;
 
-  const EvaluationScoreSummaryCard({
-    super.key,
-    required this.state,
-  });
+  const EvaluationScoreSummaryCard({super.key, required this.state});
 
   DebateEvaluation? get _evaluation =>
       state is EvaluationLoaded ? (state as EvaluationLoaded).evaluation : null;
@@ -21,8 +18,8 @@ class EvaluationScoreSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final evaluation = _evaluation;
     final hasScoreData = state is EvaluationLoaded && evaluation?.score != null;
-    final hasRatioData = evaluation?.logicScore != null &&
-        evaluation?.persuasionScore != null;
+    final hasRatioData =
+        evaluation?.logicScore != null && evaluation?.persuasionScore != null;
 
     return Container(
       constraints: const BoxConstraints(minHeight: 640),
@@ -158,7 +155,11 @@ class EvaluationLoadingScoreCard extends StatelessWidget {
             child: EvaluationSkeletonBox(width: 180, height: 18, radius: 999),
           ),
           SizedBox(height: 38),
-          EvaluationSkeletonBox(width: double.infinity, height: 14, radius: 999),
+          EvaluationSkeletonBox(
+            width: double.infinity,
+            height: 14,
+            radius: 999,
+          ),
           SizedBox(height: 10),
           EvaluationSkeletonBox(width: 180, height: 12, radius: 999),
           SizedBox(height: 28),

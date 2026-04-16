@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../domain/entities/home_item.dart';
+import '../../../domain/entities/home_item.dart';
 
 class TopicCard extends StatelessWidget {
   final HomeItem topic;

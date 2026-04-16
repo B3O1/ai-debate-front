@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/di/injection.dart';
 import '../../domain/entities/debate_session_config.dart';
-import '../bloc/evaluation_bloc.dart';
-import '../bloc/evaluation_event.dart';
-import '../bloc/evaluation_state.dart';
+import '../bloc/evaluation/evaluation_bloc.dart';
+import '../bloc/evaluation/evaluation_event.dart';
+import '../bloc/evaluation/evaluation_state.dart';
 import '../widgets/evaluation/evaluation_header.dart';
 import '../widgets/evaluation/evaluation_loaded_content.dart';
 import '../widgets/evaluation/evaluation_loading_content.dart';
@@ -13,10 +13,7 @@ import '../widgets/evaluation/evaluation_loading_content.dart';
 class EvaluationPage extends StatelessWidget {
   final DebateSessionConfig config;
 
-  const EvaluationPage({
-    super.key,
-    required this.config,
-  });
+  const EvaluationPage({super.key, required this.config});
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +27,7 @@ class EvaluationPage extends StatelessWidget {
 class _EvaluationView extends StatelessWidget {
   final DebateSessionConfig config;
 
-  const _EvaluationView({
-    required this.config,
-  });
+  const _EvaluationView({required this.config});
 
   @override
   Widget build(BuildContext context) {
@@ -41,12 +36,10 @@ class _EvaluationView extends StatelessWidget {
       body: SafeArea(
         child: BlocBuilder<EvaluationBloc, EvaluationState>(
           builder: (context, state) {
-            final body = state is EvaluationLoading || state is EvaluationInitial
+            final body =
+                state is EvaluationLoading || state is EvaluationInitial
                 ? EvaluationLoadingContent(config: config)
-                : EvaluationLoadedContent(
-                    config: config,
-                    state: state,
-                  );
+                : EvaluationLoadedContent(config: config, state: state);
 
             return SingleChildScrollView(
               padding: const EdgeInsets.all(24),

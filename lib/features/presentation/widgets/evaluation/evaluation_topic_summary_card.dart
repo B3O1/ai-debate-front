@@ -6,10 +6,7 @@ import '../../../domain/entities/debate_session_config.dart';
 class EvaluationTopicSummaryCard extends StatelessWidget {
   final DebateSessionConfig config;
 
-  const EvaluationTopicSummaryCard({
-    super.key,
-    required this.config,
-  });
+  const EvaluationTopicSummaryCard({super.key, required this.config});
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,5 @@
-import '../../domain/entities/debate_style.dart';
-import '../../domain/entities/home_item.dart';
+import '../../../domain/entities/debate_style.dart';
+import '../../../domain/entities/home_item.dart';
 
 class HomeState {
   final bool isLoading;

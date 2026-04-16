@@ -7,10 +7,7 @@ import '../../../domain/entities/debate_session_config.dart';
 class ChatHeader extends StatelessWidget {
   final DebateSessionConfig config;
 
-  const ChatHeader({
-    super.key,
-    required this.config,
-  });
+  const ChatHeader({super.key, required this.config});
 
   @override
   Widget build(BuildContext context) {
@@ -88,10 +85,9 @@ class ChatHeader extends StatelessWidget {
               ),
             ),
             onPressed: () {
-              Navigator.of(context).pushNamed(
-                AppRouter.evaluation,
-                arguments: config,
-              );
+              Navigator.of(
+                context,
+              ).pushNamed(AppRouter.evaluation, arguments: config);
             },
             child: const Text(
               '토론 종료 및 종합 분석',

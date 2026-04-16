@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../domain/usecases/get_home_items.dart';
+import '../../../domain/usecases/get_home_items.dart';
 import 'home_event.dart';
 import 'home_state.dart';
 

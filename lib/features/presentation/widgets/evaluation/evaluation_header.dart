@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class EvaluationHeader extends StatelessWidget {
   final VoidCallback onRestart;
 
-  const EvaluationHeader({
-    super.key,
-    required this.onRestart,
-  });
+  const EvaluationHeader({super.key, required this.onRestart});
 
   @override
   Widget build(BuildContext context) {

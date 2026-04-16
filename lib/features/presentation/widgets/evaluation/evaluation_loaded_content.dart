@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/debate_session_config.dart';
-import '../../bloc/evaluation_state.dart';
+import '../../bloc/evaluation/evaluation_state.dart';
 import 'evaluation_bullet_card.dart';
 import 'evaluation_coaching_card.dart';
 import 'evaluation_score_summary_card.dart';
@@ -22,10 +22,7 @@ class EvaluationLoadedContent extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          width: 320,
-          child: EvaluationScoreSummaryCard(state: state),
-        ),
+        SizedBox(width: 320, child: EvaluationScoreSummaryCard(state: state)),
         const SizedBox(width: 20),
         Expanded(
           child: Column(
@@ -53,10 +50,7 @@ class EvaluationLoadedContent extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 20),
-              EvaluationCoachingCard(
-                state: state,
-                config: config,
-              ),
+              EvaluationCoachingCard(state: state, config: config),
             ],
           ),
         ),

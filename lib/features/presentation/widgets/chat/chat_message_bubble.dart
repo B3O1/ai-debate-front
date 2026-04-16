@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../domain/entities/chat_message.dart';
+import '../../../domain/entities/chat_message.dart';
 
 class ChatMessageBubble extends StatelessWidget {
   final ChatMessage message;
 
-  const ChatMessageBubble({
-    super.key,
-    required this.message,
-  });
+  const ChatMessageBubble({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +16,9 @@ class ChatMessageBubble extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 14),
         child: Row(
-          mainAxisAlignment:
-              isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+          mainAxisAlignment: isUser
+              ? MainAxisAlignment.end
+              : MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             if (!isUser) ...[
@@ -74,9 +72,7 @@ class ChatMessageBubble extends StatelessWidget {
 class _SpeakerAvatar extends StatelessWidget {
   final bool isUser;
 
-  const _SpeakerAvatar({
-    required this.isUser,
-  });
+  const _SpeakerAvatar({required this.isUser});
 
   @override
   Widget build(BuildContext context) {
@@ -86,9 +82,7 @@ class _SpeakerAvatar extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFF5F8FF),
         shape: BoxShape.circle,
-        border: Border.all(
-          color: const Color(0xFFD6E3FF),
-        ),
+        border: Border.all(color: const Color(0xFFD6E3FF)),
       ),
       child: Icon(
         isUser ? Icons.person_outline : Icons.smart_toy_outlined,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../bloc/evaluation_state.dart';
+import '../../bloc/evaluation/evaluation_state.dart';
 
 class EvaluationBulletCard extends StatelessWidget {
   final EvaluationState state;
@@ -17,9 +17,7 @@ class EvaluationBulletCard extends StatelessWidget {
   List<String> get _items {
     if (state is EvaluationLoaded) {
       final evaluation = (state as EvaluationLoaded).evaluation;
-      return title == '주요 강점'
-          ? evaluation.strengths
-          : evaluation.weaknesses;
+      return title == '주요 강점' ? evaluation.strengths : evaluation.weaknesses;
     }
 
     return const [];

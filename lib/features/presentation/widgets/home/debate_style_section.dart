@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../domain/entities/debate_style.dart';
+import '../../../domain/entities/debate_style.dart';
 
 class DebateStyleSection extends StatelessWidget {
   final DebateStyle? selectedStyle;

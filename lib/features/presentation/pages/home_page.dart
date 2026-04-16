@@ -4,10 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../app/router/app_router.dart';
 import '../../../core/di/injection.dart';
 import '../../domain/entities/debate_session_config.dart';
-import '../bloc/home_bloc.dart';
-import '../bloc/home_event.dart';
-import '../bloc/home_state.dart';
-import '../widgets/home_header_section.dart';
+import '../bloc/home/home_bloc.dart';
+import '../bloc/home/home_event.dart';
+import '../bloc/home/home_state.dart';
+import '../widgets/home/home_header_section.dart';
 import '../widgets/home/home_action_panel.dart';
 import '../widgets/home/home_topic_grid.dart';
 
