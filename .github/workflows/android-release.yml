@@ -68,3 +68,37 @@ jobs:
         with:
           name: android-aab
           path: build/app/outputs/bundle/release/app-release.aab
+
+      - name: Install rclone
+        if: ${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON != '' && secrets.GOOGLE_DRIVE_ANDROID_FOLDER_ID != '' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rclone
+
+      - name: Upload Android release files to Google Drive
+        if: ${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON != '' && secrets.GOOGLE_DRIVE_ANDROID_FOLDER_ID != '' }}
+        shell: bash
+        env:
+          GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_DRIVE_ANDROID_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_ANDROID_FOLDER_ID }}
+        run: |
+          mkdir -p .github/tmp
+          printf '%s' "$GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON" > .github/tmp/gdrive-service-account.json
+
+          cat <<EOF > .github/tmp/rclone.conf
+          [gdrive]
+          type = drive
+          scope = drive
+          service_account_file = .github/tmp/gdrive-service-account.json
+          root_folder_id = ${GOOGLE_DRIVE_ANDROID_FOLDER_ID}
+          EOF
+
+          release_dir="android/${GITHUB_REF_NAME}/run-${GITHUB_RUN_NUMBER}-${GITHUB_SHA::7}"
+
+          rclone --config .github/tmp/rclone.conf mkdir "gdrive:${release_dir}"
+          rclone --config .github/tmp/rclone.conf copyto \
+            build/app/outputs/flutter-apk/app-release.apk \
+            "gdrive:${release_dir}/app-release.apk"
+          rclone --config .github/tmp/rclone.conf copyto \
+            build/app/outputs/bundle/release/app-release.aab \
+            "gdrive:${release_dir}/app-release.aab"
