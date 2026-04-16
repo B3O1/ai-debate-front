@@ -191,6 +191,8 @@ class _ChatViewState extends State<_ChatView> {
               return LayoutBuilder(
                 builder: (context, constraints) {
                   final isMobile = constraints.maxWidth < 700;
+                  final keyboardVisible =
+                      MediaQuery.viewInsetsOf(context).bottom > 0;
                   final outerPadding = isMobile ? 8.0 : 16.0;
 
                   return Padding(
@@ -219,12 +221,16 @@ class _ChatViewState extends State<_ChatView> {
                             ),
                             child: Column(
                               children: [
-                                ChatHeader(config: widget.config),
+                                ChatHeader(
+                                  config: widget.config,
+                                  compact: isMobile && keyboardVisible,
+                                ),
                                 Expanded(
                                   child: ChatMessageList(
                                     controller: _scrollController,
                                     messages: state.messages,
                                     isSending: state.isSending,
+                                    compact: isMobile && keyboardVisible,
                                   ),
                                 ),
                                 ChatInputPanel(
@@ -232,6 +238,8 @@ class _ChatViewState extends State<_ChatView> {
                                   focusNode: _inputFocusNode,
                                   canSend: state.canSend,
                                   isResetting: state.isResetting,
+                                  keyboardVisible:
+                                      isMobile && keyboardVisible,
                                   onChanged: (value) {
                                     context.read<ChatBloc>().add(
                                       ChatInputChanged(value),

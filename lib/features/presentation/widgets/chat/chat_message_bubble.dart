@@ -10,11 +10,12 @@ class ChatMessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isUser = message.isUser;
+    final isMobile = MediaQuery.sizeOf(context).width < 700;
 
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        padding: EdgeInsets.symmetric(vertical: isMobile ? 8 : 14),
         child: Row(
           mainAxisAlignment: isUser
               ? MainAxisAlignment.end
@@ -22,18 +23,18 @@ class ChatMessageBubble extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             if (!isUser) ...[
-              const _SpeakerAvatar(isUser: false),
-              const SizedBox(width: 12),
+              _SpeakerAvatar(isUser: false, mobile: isMobile),
+              SizedBox(width: isMobile ? 8 : 12),
             ],
             Flexible(
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
+                padding: EdgeInsets.symmetric(
+                  horizontal: isMobile ? 16 : 20,
+                  vertical: isMobile ? 12 : 16,
                 ),
                 decoration: BoxDecoration(
                   color: isUser ? const Color(0xFF2F6BFF) : Colors.white,
-                  borderRadius: BorderRadius.circular(22),
+                  borderRadius: BorderRadius.circular(isMobile ? 18 : 22),
                   border: Border.all(
                     color: isUser
                         ? const Color(0xFF2F6BFF)
@@ -50,7 +51,7 @@ class ChatMessageBubble extends StatelessWidget {
                 child: Text(
                   message.text,
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: isMobile ? 15 : 18,
                     fontWeight: FontWeight.w600,
                     height: 1.5,
                     color: isUser ? Colors.white : const Color(0xFF1F2937),
@@ -59,8 +60,8 @@ class ChatMessageBubble extends StatelessWidget {
               ),
             ),
             if (isUser) ...[
-              const SizedBox(width: 12),
-              const _SpeakerAvatar(isUser: true),
+              SizedBox(width: isMobile ? 8 : 12),
+              _SpeakerAvatar(isUser: true, mobile: isMobile),
             ],
           ],
         ),
@@ -71,14 +72,15 @@ class ChatMessageBubble extends StatelessWidget {
 
 class _SpeakerAvatar extends StatelessWidget {
   final bool isUser;
+  final bool mobile;
 
-  const _SpeakerAvatar({required this.isUser});
+  const _SpeakerAvatar({required this.isUser, this.mobile = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 38,
-      height: 38,
+      width: mobile ? 32 : 38,
+      height: mobile ? 32 : 38,
       decoration: BoxDecoration(
         color: const Color(0xFFF5F8FF),
         shape: BoxShape.circle,
@@ -86,7 +88,7 @@ class _SpeakerAvatar extends StatelessWidget {
       ),
       child: Icon(
         isUser ? Icons.person_outline : Icons.smart_toy_outlined,
-        size: 20,
+        size: mobile ? 18 : 20,
         color: const Color(0xFF2F6BFF),
       ),
     );
