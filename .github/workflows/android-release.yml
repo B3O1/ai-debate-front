@@ -9,6 +9,9 @@ on:
 jobs:
   build-android:
     runs-on: ubuntu-latest
+    env:
+      DRIVE_JSON: ${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON }}
+      DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_ANDROID_FOLDER_ID }}
 
     steps:
       - name: Checkout
@@ -38,7 +41,6 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           if [ -z "$ANDROID_KEYSTORE_BASE64" ] || [ -z "$ANDROID_KEYSTORE_PASSWORD" ] || [ -z "$ANDROID_KEY_ALIAS" ] || [ -z "$ANDROID_KEY_PASSWORD" ]; then
-            echo "Missing Android signing secrets, using debug signing fallback."
             exit 0
           fi
 
@@ -70,27 +72,24 @@ jobs:
           path: build/app/outputs/bundle/release/app-release.aab
 
       - name: Install rclone
-        if: ${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON != '' && secrets.GOOGLE_DRIVE_ANDROID_FOLDER_ID != '' }}
+        if: env.DRIVE_JSON != '' && env.DRIVE_FOLDER_ID != ''
         run: |
           sudo apt-get update
           sudo apt-get install -y rclone
 
       - name: Upload Android release files to Google Drive
-        if: ${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON != '' && secrets.GOOGLE_DRIVE_ANDROID_FOLDER_ID != '' }}
+        if: env.DRIVE_JSON != '' && env.DRIVE_FOLDER_ID != ''
         shell: bash
-        env:
-          GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON }}
-          GOOGLE_DRIVE_ANDROID_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_ANDROID_FOLDER_ID }}
         run: |
           mkdir -p .github/tmp
-          printf '%s' "$GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON" > .github/tmp/gdrive-service-account.json
+          printf '%s' "$DRIVE_JSON" > .github/tmp/gdrive-service-account.json
 
           cat <<EOF > .github/tmp/rclone.conf
           [gdrive]
           type = drive
           scope = drive
           service_account_file = .github/tmp/gdrive-service-account.json
-          root_folder_id = ${GOOGLE_DRIVE_ANDROID_FOLDER_ID}
+          root_folder_id = ${DRIVE_FOLDER_ID}
           EOF
 
           release_dir="android/${GITHUB_REF_NAME}/run-${GITHUB_RUN_NUMBER}-${GITHUB_SHA::7}"
